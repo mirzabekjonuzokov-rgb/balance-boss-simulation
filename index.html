@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Balance Boss (Real-Time Balance)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* --- GLOBAL & BASE STYLES --- */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            text-align: center;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0; 
+            color: #343a40;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        
+        /* --- MAIN LAYOUT (DESKTOP) --- */
+        .game-container {
+            display: flex;
+            width: 100%;
+            max-width: 1250px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+            min-height: 750px; 
+        }
+        .panel {
+            padding: 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- LEFT PANEL: Event/Score (DESKTOP) --- */
+        .event-panel {
+            width: 28%;
+            background: #e6f9f7;
+            text-align: left;
+            border-right: 1px solid #dee2e6;
+            min-height: 750px;
+        }
+        .event-panel h2 { 
+            color: #00796b; 
+            margin-top: 0; 
+            font-size: 1.6em; 
+            border-bottom: 2px solid #b2dfdb;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        #current-event {
+            font-size: 1.35em;
+            font-weight: 600;
+            color: #004d40;
+            padding: 15px;
+            background: #d4f7f5;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .score-display { 
+            font-size: 1.2em; 
+            color: #555; 
+            font-weight: 500;
+        }
+
+        /* --- MIDDLE PANEL: Balance Sheet (DESKTOP) --- */
+        .balance-sheet-panel {
+            width: 44%;
+            background: #ffffff;
+            padding: 30px 35px;
+            overflow-y: hidden; 
+        }
+        .balance-sheet-panel h1 {
+            background: #00796b;
+            color: white;
+            padding: 12px;
+            margin-top: 0;
+            border-radius: 10px;
+            font-size: 1.9em;
+        }
+        .account-table h3 {
+            background: #b2dfdb;
+            color: #004d40;
+            padding: 10px 12px;
+            margin: 25px 0 8px 0;
+            border-radius: 6px;
+            font-size: 1.2em;
+        }
+        .account-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            padding: 6px 0;
+            border-bottom: 1px dotted #e9ecef;
+            font-size: 1.05em;
+        }
+        /* Style for the question mark button */
+        .concept-help-btn {
+            font-size: 1em;
+            cursor: pointer;
+            color: #007bff;
+            margin-left: 8px;
+            padding: 0;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+        .account-table input {
+            width: 110px;
+            height: 40px;
+            border: 1px solid #ced4da;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-align: right;
+            padding-right: 12px;
+            font-weight: 700;
+            font-size: 1.1em;
+            /* Added oninput handler to all inputs - though it's better to use JS for dynamic binding */
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            margin-top: 15px;
+            padding: 15px 0;
+            border-top: 3px solid #343a40; 
+            font-size: 1.2em;
+        }
+        .total-value {
+            width: 110px;
+            text-align: right;
+            padding-right: 12px;
+            color: #00796b;
+            letter-spacing: 0.5px;
+        }
+        .total-value.match { color: #28a745; }
+        .total-value.unmatched { color: #dc3545; } /* Highlight imbalance */
+
+
+        /* Tooltip Box Styles */
+        #concept-info-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            background: #fff3cd; /* Light warning color */
+            border: 1px solid #ffeeba;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 200;
+            text-align: left;
+            display: none;
+            font-size: 1em;
+        }
+        #concept-info-box h4 {
+            color: #856404;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        #concept-info-box button {
+            width: 100%;
+            padding: 8px;
+            background: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+
+        /* --- RIGHT PANEL: System Check/Controls (DESKTOP) --- */
+        .controls-panel {
+            width: 28%;
+            background: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            min-height: 750px;
+        }
+        
+        /* Feedback Colors */
+        .feedback-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .feedback-neutral { background: #e9ecef; color: #495057; border: 1px solid #ced4da; }
+        
+        /* --- BUTTONS --- */
+        button {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #check-btn { background: #007bff; color: white; }
+        #hint-btn { background: #ffc107; color: #343a40; }
+        #next-btn { background: #28a745; color: white; }
+        #reset-btn { background: #dc3545; color: white; }
+        
+        /* --- START/END SCREEN --- */
+        .overlay-screen {
+            position: absolute; 
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 450px;
+            display: none;
+            text-align: center;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+
+        /* ======================================================= */
+        /* --- MOBILE OPTIMIZATION (Max-width 768px) --- */
+        /* ======================================================= */
+        @media (max-width: 768px) {
+            body { 
+                padding: 0;
+                align-items: stretch;
+                min-height: 100vh;
+            }
+            .game-container {
+                flex-direction: column;
+                max-width: 100%;
+                width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                min-height: 100vh;
+                height: auto;
+                border: none;
+            }
+            .panel {
+                width: 100% !important;
+                padding: 15px;
+                min-height: auto !important;
+                height: auto !important;
+                border-radius: 0;
+                border: none;
+            }
+            
+            /* STICKY EVENT PANEL (Top) */
+            .event-panel {
+                order: 1; 
+                position: sticky;
+                top: 0;
+                z-index: 100; 
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                border-bottom: 2px solid #00796b;
+            }
+            /* **MOBILE READABILITY IMPROVEMENT** */
+            .event-panel h2 { font-size: 1.4em; }
+            #event-number { font-size: 1.5em; }
+            #current-event { 
+                font-size: 1.1em; /* Ensure event text is readable */
+                padding: 10px;
+            }
+            .score-display { font-size: 1em; }
+
+
+            /* BALANCE SHEET PANEL (Main Scrollable Content) */
+            .balance-sheet-panel {
+                order: 2; 
+                padding-bottom: 100px; /* Space for the fixed controls panel */
+                padding-top: 10px;
+                overflow-y: scroll; 
+                flex-grow: 1; 
+                height: auto;
+            }
+            .balance-sheet-panel h1 {
+                font-size: 1.5em;
+            }
+            .account-table h3 {
+                font-size: 1.1em;
+            }
+            .account-row {
+                font-size: 1.1em; /* **MOBILE READABILITY IMPROVEMENT** */
+            }
+            .account-table input {
+                width: 100px;
+                height: 44px; /* **MOBILE READABILITY IMPROVEMENT: Bigger touch target** */
+                font-size: 1.1em; /* **MOBILE READABILITY IMPROVEMENT** */
+            }
+            .total-row {
+                font-size: 1.3em; /* **MOBILE READABILITY IMPROVEMENT** */
+            }
+
+            /* STICKY CONTROLS PANEL (Bottom) */
+            .controls-panel {
+                order: 3; 
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%; /* Important for fixed positioning */
+                z-index: 100;
+                background: white;
+                box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+                padding: 10px 15px;
+                border-top: 2px solid #dee2e6;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .controls-panel h2, #feedback-box, #reset-btn {
+                display: none;
+            }
+            button {
+                width: 32%; /* Adjust width to fit three main buttons */
+                margin: 5px 1px;
+                padding: 10px;
+                font-size: 0.9em;
+                min-height: 40px;
+                box-shadow: none;
+            }
+            
+            /* ADJUST START/END SCREEN FOR MOBILE */
+            .overlay-screen {
+                position: fixed;
+                width: 90%;
+                max-width: 90%;
+                margin: 0;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 25px;
+            }
+            
+            #concept-info-box {
+                width: 90%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="concept-info-box">
+        <h4><span id="concept-title"></span></h4>
+        <p id="concept-definition"></p>
+        <button onclick="document.getElementById('concept-info-box').style.display = 'none';">Got it!</button>
+    </div>
+
+    <div id="start-screen" class="overlay-screen" style="display: flex; flex-direction: column; align-items: center;">
+        <h1>Balance Boss 💼</h1>
+        <p>Welcome, CFO! Enter your name to begin the financial simulation.</p>
+        <input type="text" id="playerName" placeholder="Enter your name">
+        <button onclick="startGame()">Start Simulation</button>
+    </div>
+
+    <div id="game-interface" class="game-container" style="display: none;">
+
+        <div class="panel event-panel">
+            <h2>Current Event (Transaction)</h2>
+            <div id="event-number" style="font-size: 1.8em; color: #343a40; margin-bottom: 10px; font-weight: 700;">Event 1</div>
+            <div id="current-event"></div>
+            <div class="score-display">Score: <span id="current-score">0</span></div>
+            <div class="score-display" style="margin-top: 5px;">Attempts Left: <span id="attempts-left">5</span></div>
+        </div>
+
+        <div class="panel balance-sheet-panel">
+            <h1>Balance Sheet ($)</h1>
+            <div class="account-table">
+                
+                <h3>ASSETS</h3>
+                <div class="account-row">
+                    <label>Cash
+                        <span class="concept-help-btn" onclick="showConceptInfo('cash')">❓</span>
+                    </label>
+                    <input type="number" id="cash" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Accounts Receivable
+                        <span class="concept-help-btn" onclick="showConceptInfo('ar')">❓</span>
+                    </label>
+                    <input type="number" id="ar" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Inventory
+                        <span class="concept-help-btn" onclick="showConceptInfo('inventory')">❓</span>
+                    </label>
+                    <input type="number" id="inventory" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Equipment
+                        <span class="concept-help-btn" onclick="showConceptInfo('equipment')">❓</span>
+                    </label>
+                    <input type="number" id="equipment" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Prepaid Expenses
+                        <span class="concept-help-btn" onclick="showConceptInfo('prepaidExpenses')">❓</span>
+                    </label>
+                    <input type="number" id="prepaidExpenses" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Accumulated Depreciation
+                        <span class="concept-help-btn" onclick="showConceptInfo('accumulatedDepreciation')">❓</span>
+                    </label>
+                    <input type="number" id="accumulatedDepreciation" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+
+                <h3>LIABILITIES</h3>
+                <div class="account-row">
+                    <label>Accounts Payable
+                        <span class="concept-help-btn" onclick="showConceptInfo('ap')">❓</span>
+                    </label>
+                    <input type="number" id="ap" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Notes Payable (Loan)
+                        <span class="concept-help-btn" onclick="showConceptInfo('notesPayable')">❓</span>
+                    </label>
+                    <input type="number" id="notesPayable" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+
+                <h3>SHAREHOLDERS' EQUITY</h3>
+                <div class="account-row">
+                    <label>Common Stock
+                        <span class="concept-help-btn" onclick="showConceptInfo('commonStock')">❓</span>
+                    </label>
+                    <input type="number" id="commonStock" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+                <div class="account-row">
+                    <label>Retained Earnings
+                        <span class="concept-help-btn" onclick="showConceptInfo('retainedEarnings')">❓</span>
+                    </label>
+                    <input type="number" id="retainedEarnings" value="0" oninput="clearFeedback(); calculateRealTime();">
+                </div>
+
+            </div>
+            
+            <div style="width: 100%; margin-top: 20px;">
+                <div class="total-row">
+                    <label>TOTAL ASSETS</label><span id="total-assets" class="total-value">$0</span>
+                </div>
+                <div class="total-row">
+                    <label>TOTAL LIABILITIES + EQUITY</label><span id="total-l-e" class="total-value">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel controls-panel">
+            <h2>System Check</h2>
+            <div id="feedback-box" class="feedback-neutral">
+                System is ready. Adjust the account balances and click 'Check Balance'.
+            </div>
+            <button id="check-btn" onclick="checkBalance()">Check Balance</button>
+            <button id="hint-btn" onclick="showHint()">Hint (-5 Pts)</button>
+            <button id="next-btn" onclick="nextEvent()" disabled>Next >></button>
+            <button id="reset-btn" onclick="confirmReset()">Reset Simulation</button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="overlay-screen">
+        <h1>Simulation Complete! 🎉</h1>
+        <p id="end-message"></p>
+        <div id="final-score"></div>
+        <div id="final-rating"></div>
+        <button onclick="window.location.reload()" style="margin-top: 20px;">Start New Game</button>
+    </div>
+
+    <script>
+        // --- Concept Definitions for Tooltip ---
+        const CONCEPT_DEFINITIONS = {
+            cash: {
+                title: "Cash",
+                definition: "The most liquid asset, representing physical currency and funds held in bank accounts. Used to pay immediate debts and expenses."
+            },
+            ar: {
+                title: "Accounts Receivable",
+                definition: "Money owed to the company by customers for goods or services already delivered on credit. It is expected to be collected soon."
+            },
+            inventory: {
+                title: "Inventory",
+                definition: "Goods a company holds for sale (e.g., products, raw materials). It is an asset until it is sold and converted into cash or accounts receivable."
+            },
+            equipment: {
+                title: "Equipment",
+                definition: "Long-term tangible assets (Property, Plant, and Equipment) like machinery, vehicles, and furniture used in the business operations."
+            },
+            prepaidExpenses: {
+                title: "Prepaid Expenses",
+                definition: "Payments made by the company in advance for services or goods that will be used in the future (e.g., prepaid rent or insurance)."
+            },
+            accumulatedDepreciation: {
+                title: "Accumulated Depreciation",
+                definition: "A Contra-Asset account. It represents the total amount of an asset's cost that has been charged to expense (depreciation) since the asset was acquired. It **reduces** total assets."
+            },
+            ap: {
+                title: "Accounts Payable",
+                definition: "Money the company owes to suppliers or vendors for purchases made on credit. It is a short-term obligation."
+            },
+            notesPayable: {
+                title: "Notes Payable (Loan)",
+                definition: "A formal written promise to pay a fixed amount of money to a lender (like a bank) on a specific date. This is typically a longer-term liability."
+            },
+            commonStock: {
+                title: "Common Stock",
+                definition: "The amount of money raised from investors by issuing shares in exchange for cash or other assets. This is the owners' initial investment in the company."
+            },
+            retainedEarnings: {
+                title: "Retained Earnings",
+                definition: "The cumulative net income (profit) of the company that has been held in the business, less any dividends paid to shareholders. It increases with profits/revenue and decreases with expenses/dividends."
+            }
+        };
+
+        // NEW FUNCTION: Display concept definition
+        function showConceptInfo(conceptKey) {
+            const info = CONCEPT_DEFINITIONS[conceptKey];
+            document.getElementById('concept-title').textContent = info.title;
+            document.getElementById('concept-definition').textContent = info.definition;
+            document.getElementById('concept-info-box').style.display = 'block';
+        }
+
+
+        // --- Game Data ---
+        const ALL_TRANSACTIONS = [
+            {
+                event: "You bought Equipment for $20,000 cash.",
+                updates: { cash: -20000, equipment: 20000 },
+                hint: "This is an Asset for Asset trade. One Asset goes up, one Asset goes down.",
+                explanation: "Cash (Asset) decreases; Equipment (Asset) increases. Assets are unchanged."
+            },
+            {
+                event: "You borrowed $5,000 from the bank (increased Notes Payable).",
+                updates: { cash: 5000, notesPayable: 5000 },
+                hint: "You received an Asset (Cash) and created a Liability (Note Payable).",
+                explanation: "Cash (Asset) increases; Notes Payable (Liability) increases. Accounting Equation remains balanced."
+            },
+            {
+                event: "You sold goods worth $3,000 on credit (Accounts Receivable).",
+                updates: { ar: 3000, retainedEarnings: 3000 },
+                hint: "A credit sale increases an Asset (AR) and increases Equity (Retained Earnings via Revenue).",
+                explanation: "Accounts Receivable (Asset) increases due to sales; Retained Earnings (Equity) increases due to profit (Revenue). Assets = L+E."
+            },
+            {
+                event: "You repaid $2,000 of your bank loan (Notes Payable).",
+                updates: { cash: -2000, notesPayable: -2000 },
+                hint: "You are reducing an Asset (Cash) and reducing a Liability (Notes Payable).",
+                explanation: "Cash (Asset) decreases; Notes Payable (Liability) decreases. Assets = L+E."
+            },
+            {
+                event: "You received $1,000 cash from a customer who owed you (Accounts Receivable).",
+                updates: { cash: 1000, ar: -1000 },
+                hint: "This is an Asset for Asset swap. Cash replaces Accounts Receivable.",
+                explanation: "Cash (Asset) increases; Accounts Receivable (Asset) decreases. Total Assets are unchanged."
+            },
+            {
+                event: "You paid salaries worth $1,200.",
+                updates: { cash: -1200, retainedEarnings: -1200 },
+                hint: "An expense reduces Cash and reduces Equity (Retained Earnings).",
+                explanation: "Cash (Asset) decreases; Retained Earnings (Equity) decreases due to the expense. Assets = L+E."
+            },
+            {
+                event: "You issued new shares for $10,000 cash.",
+                updates: { cash: 10000, commonStock: 10000 },
+                hint: "You receive an Asset (Cash) and increase Equity (Common Stock).",
+                explanation: "Cash (Asset) increases; Common Stock (Equity) increases. Assets = L+E."
+            },
+            {
+                event: "You paid $500 rent in advance (Prepaid Expenses).",
+                updates: { cash: -500, prepaidExpenses: 500 },
+                hint: "This is an Asset for Asset trade. Cash goes down, Prepaid Expenses (an Asset) goes up.",
+                explanation: "Cash (Asset) decreases; Prepaid Expenses (Asset) increases. Total Assets are unchanged."
+            },
+            {
+                event: "You recognized depreciation of $800 on equipment.",
+                updates: { accumulatedDepreciation: -800, retainedEarnings: -800 },
+                hint: "This is an Expense (reducing Retained Earnings) and increases the Contra-Asset (Accumulated Depreciation).",
+                explanation: "Accumulated Depreciation (Contra-Asset, thus a positive change is a reduction in Asset); Retained Earnings (Equity) decreases due to the expense. Assets = L+E."
+            },
+            {
+                event: "You declared dividends of $600 (a reduction in Retained Earnings).",
+                updates: { retainedEarnings: -600, cash: -600 },
+                hint: "Dividends reduce Cash and reduce Equity (Retained Earnings).",
+                explanation: "Retained Earnings (Equity) decreases; Cash (Asset) decreases. Assets = L+E."
+            }
+        ];
+
+        // --- Game State Variables ---
+        let playerName = '';
+        let balanceSheet = {
+            cash: 0, ar: 0, inventory: 0, equipment: 0, prepaidExpenses: 0, accumulatedDepreciation: 0,
+            ap: 0, notesPayable: 0, commonStock: 0, retainedEarnings: 0
+        };
+        let transactionsHistory = [];
+        let currentEventIndex = 0;
+        let currentScore = 0;
+        let currentAttempts = 5; 
+        let hintUsed = false; 
+        const HINT_PENALTY = 5;
+        const MAX_EVENTS = ALL_TRANSACTIONS.length;
+
+        // --- DOM Elements ---
+        const gameInterface = document.getElementById('game-interface');
+        const startScreen = document.getElementById('start-screen');
+        const endScreen = document.getElementById('end-screen');
+        const eventNumEl = document.getElementById('event-number');
+        const eventEl = document.getElementById('current-event');
+        const scoreEl = document.getElementById('current-score');
+        const attemptsEl = document.getElementById('attempts-left');
+        const feedbackEl = document.getElementById('feedback-box');
+        const nextBtn = document.getElementById('next-btn');
+        const hintBtn = document.getElementById('hint-btn');
+
+        // --- Utility Functions ---
+        
+        function calculateRealTime() {
+            // Read current values from the input fields
+            const inputs = {
+                cash: getAccountValue('cash'),
+                ar: getAccountValue('ar'),
+                inventory: getAccountValue('inventory'),
+                equipment: getAccountValue('equipment'),
+                prepaidExpenses: getAccountValue('prepaidExpenses'),
+                accumulatedDepreciation: getAccountValue('accumulatedDepreciation'),
+                ap: getAccountValue('ap'),
+                notesPayable: getAccountValue('notesPayable'),
+                commonStock: getAccountValue('commonStock'),
+                retainedEarnings: getAccountValue('retainedEarnings')
+            };
+
+            // Calculate Assets (Accumulated Depreciation is a Contra-Asset, so it's subtracted)
+            const playerAssets = inputs.cash + inputs.ar + inputs.inventory + inputs.equipment + inputs.prepaidExpenses - inputs.accumulatedDepreciation;
+            // Calculate Liabilities + Equity
+            const playerLE = inputs.ap + inputs.notesPayable + inputs.commonStock + inputs.retainedEarnings;
+
+            document.getElementById('total-assets').textContent = '$' + playerAssets.toLocaleString('en-US');
+            document.getElementById('total-l-e').textContent = '$' + playerLE.toLocaleString('en-US');
+            
+            const isBalanced = Math.abs(playerAssets - playerLE) < 1; 
+            
+            // Update styles immediately
+            document.getElementById('total-assets').classList.toggle('match', isBalanced);
+            document.getElementById('total-assets').classList.toggle('unmatched', !isBalanced);
+            document.getElementById('total-l-e').classList.toggle('match', isBalanced);
+            document.getElementById('total-l-e').classList.toggle('unmatched', !isBalanced);
+        }
+
+
+        function getAccountValue(id) {
+            const value = parseInt(document.getElementById(id).value) || 0;
+            return value;
+        }
+
+        function renderBalanceSheet() {
+            for (const key in balanceSheet) {
+                const inputEl = document.getElementById(key);
+                if (inputEl) {
+                    inputEl.value = balanceSheet[key];
+                    inputEl.disabled = false;
+                }
+            }
+            calculateRealTime(); // Use real-time calculator for initial render
+        }
+
+        function clearFeedback() {
+            if (window.innerWidth > 768) {
+                feedbackEl.className = 'feedback-neutral';
+                feedbackEl.textContent = 'System is ready. Adjust the account balances and click \'Check Balance\'.';
+            }
+            nextBtn.disabled = true;
+        }
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- Game Logic ---
+
+        function startGame() {
+            playerName = document.getElementById('playerName').value || 'CFO Trainee';
+            startScreen.style.display = 'none';
+            gameInterface.style.display = 'flex';
+
+            transactionsHistory = shuffle([...ALL_TRANSACTIONS]);
+            
+            // Initial Balance Sheet Setup
+            balanceSheet = {
+                cash: 50000, ar: 0, inventory: 0, equipment: 10000, prepaidExpenses: 0, accumulatedDepreciation: 0,
+                ap: 0, notesPayable: 0, commonStock: 60000, retainedEarnings: 0
+            };
+            
+            currentEventIndex = 0;
+            currentScore = 0;
+            
+            renderBalanceSheet();
+            loadEvent();
+        }
+
+        function loadEvent() {
+            if (currentEventIndex >= MAX_EVENTS) {
+                endGame();
+                return;
+            }
+
+            currentAttempts = 5; 
+            hintUsed = false;
+            
+            attemptsEl.textContent = currentAttempts;
+
+            const eventData = transactionsHistory[currentEventIndex];
+            eventNumEl.textContent = `Event ${currentEventIndex + 1} of ${MAX_EVENTS}`;
+            eventEl.innerHTML = eventData.event;
+            scoreEl.textContent = currentScore;
+            
+            hintBtn.disabled = false; 
+            hintBtn.textContent = `Hint (-${HINT_PENALTY} Pts)`;
+
+            renderBalanceSheet();
+            clearFeedback();
+        }
+
+        function showHint() {
+            if (hintUsed) return; 
+
+            const eventData = transactionsHistory[currentEventIndex];
+
+            currentScore = Math.max(0, currentScore - HINT_PENALTY);
+            scoreEl.textContent = currentScore;
+            
+            // Use alert for small screen, feedback box for desktop
+            if (window.innerWidth > 768) {
+                feedbackEl.className = 'feedback-neutral';
+                feedbackEl.innerHTML = `💡 <strong>Hint (-${HINT_PENALTY} Points):</strong> ${eventData.hint}`;
+            } else {
+                 alert(`💡 Hint (-${HINT_PENALTY} Points):\n${eventData.hint}`);
+            }
+            
+            hintUsed = true;
+            hintBtn.disabled = true;
+            hintBtn.textContent = 'Hint Used';
+        }
+
+        function checkBalance() {
+            // Get the current player input values
+            const playerInputs = {
+                cash: getAccountValue('cash'), ar: getAccountValue('ar'), inventory: getAccountValue('inventory'), 
+                equipment: getAccountValue('equipment'), prepaidExpenses: getAccountValue('prepaidExpenses'), 
+                accumulatedDepreciation: getAccountValue('accumulatedDepreciation'), ap: getAccountValue('ap'), 
+                notesPayable: getAccountValue('notesPayable'), commonStock: getAccountValue('commonStock'), 
+                retainedEarnings: getAccountValue('retainedEarnings')
+            };
+
+            // Calculate the correct expected balance sheet after the transaction
+            let correctBalanceSheet = { ...balanceSheet };
+            const eventData = transactionsHistory[currentEventIndex];
+            for (const key in eventData.updates) {
+                correctBalanceSheet[key] += eventData.updates[key];
+            }
+            
+            // Calculate totals based on player input
+            const playerAssets = playerInputs.cash + playerInputs.ar + playerInputs.inventory + playerInputs.equipment + playerInputs.prepaidExpenses - playerInputs.accumulatedDepreciation;
+            const playerLE = playerInputs.ap + playerInputs.notesPayable + playerInputs.commonStock + playerInputs.retainedEarnings;
+
+            const isBalanced = Math.abs(playerAssets - playerLE) < 1; 
+            
+            // Check if every account matches the correct expected value
+            let isCorrect = true;
+            for (const key in playerInputs) {
+                if (playerInputs[key] !== correctBalanceSheet[key]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+            
+            if (isCorrect) {
+                if (!hintUsed) {
+                     currentScore += 10;
+                }
+                scoreEl.textContent = currentScore;
+                
+                if (window.innerWidth > 768) {
+                    feedbackEl.className = 'feedback-success';
+                    feedbackEl.innerHTML = '✅ Success! Assets = Liabilities + Equity. The balance is maintained.'; 
+                } else {
+                    alert("✅ Success! The balance is maintained.");
+                }
+
+                // Update the official game state balance sheet
+                balanceSheet = playerInputs; 
+                
+                // Disable inputs and enable next button
+                Array.from(document.querySelectorAll('.account-table input')).forEach(input => input.disabled = true);
+                nextBtn.disabled = false;
+                hintBtn.disabled = true;
+                calculateRealTime(); // Final update to totals display
+
+            } else {
+                currentAttempts--;
+                attemptsEl.textContent = currentAttempts;
+                
+                if (currentAttempts > 0) {
+                    let errorMsg;
+                    if (isBalanced) {
+                        errorMsg = '❌ Incorrect Accounts. The equation (A=L+E) is balanced, but your account adjustments are wrong. Try again!'; 
+                    } else {
+                        errorMsg = `❌ System Error: Assets ≠ Liabilities + Equity. Your balance is off by $${(playerAssets - playerLE).toLocaleString('en-US')}. Check your numbers!`; 
+                    }
+
+                    if (window.innerWidth > 768) {
+                        feedbackEl.className = 'feedback-error';
+                        feedbackEl.innerHTML = `${errorMsg} (Attempts left: ${currentAttempts})`;
+                    } else {
+                        alert(`${errorMsg} (Attempts left: ${currentAttempts})`);
+                    }
+
+                    gameInterface.style.animation = 'shake 0.5s';
+                    setTimeout(() => { gameInterface.style.animation = 'none'; }, 500);
+
+                } else {
+                    // Out of attempts
+                    const finalMsg = `❌ Out of Attempts! Correct answer revealed. Explanation: ${eventData.explanation}`;
+                    if (window.innerWidth > 768) {
+                        feedbackEl.className = 'feedback-error';
+                        feedbackEl.innerHTML = finalMsg;
+                    } else {
+                         alert(finalMsg);
+                    }
+                    
+                    // Show the correct answer
+                    balanceSheet = correctBalanceSheet;
+                    renderBalanceSheet(); // Renders the correct values
+                    
+                    Array.from(document.querySelectorAll('.account-table input')).forEach(input => input.disabled = true);
+                    nextBtn.disabled = false;
+                    hintBtn.disabled = true;
+                }
+            }
+        }
+
+        function nextEvent() {
+            currentEventIndex++;
+            loadEvent();
+        }
+
+        function endGame() {
+            gameInterface.style.display = 'none';
+            endScreen.style.display = 'block';
+
+            const maxScore = MAX_EVENTS * 10;
+            const percentage = Math.round((currentScore / maxScore) * 100);
+
+            let rating = '';
+            if (percentage === 100) rating = '👑 Balance Master 🏆';
+            else if (percentage >= 80) rating = '💼 Accounting Ace 📈';
+            else if (percentage >= 60) rating = '📚 Ledger Learner 🧠';
+            else rating = '🔄 Needs Practice 📝';
+
+            document.getElementById('end-message').textContent = `Congratulations, ${playerName}! You finished all ${MAX_EVENTS} events.`;
+            document.getElementById('final-score').textContent = `${currentScore}/${maxScore}`;
+            document.getElementById('final-rating').innerHTML = `Rating: ${rating}`;
+        }
+
+        function confirmReset() {
+            if (confirm('Are you sure you want to reset the simulation? All progress will be lost.')) {
+                window.location.reload();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+             // Attach the real-time calculation to all input fields on load
+             const inputs = document.querySelectorAll('.account-table input');
+             inputs.forEach(input => {
+                input.addEventListener('input', calculateRealTime);
+             });
+        });
+
+    </script>
+</body>
+</html>s
