@@ -18,7 +18,7 @@
             align-items: flex-start;
             min-height: 100vh;
         }
-        
+
         /* --- MAIN LAYOUT (DESKTOP) --- */
         .game-container {
             display: flex;
@@ -37,7 +37,6 @@
             display: flex;
             flex-direction: column;
         }
-
         /* --- LEFT PANEL: Event/Score (DESKTOP) --- */
         .event-panel {
             width: 28%;
@@ -68,7 +67,6 @@
             color: #555; 
             font-weight: 500;
         }
-
         /* --- MIDDLE PANEL: Balance Sheet (DESKTOP) --- */
         .balance-sheet-panel {
             width: 44%;
@@ -143,7 +141,6 @@
         .total-value.match { color: #28a745; }
         .total-value.unmatched { color: #dc3545; } /* Highlight imbalance */
 
-
         /* Tooltip Box Styles */
         #concept-info-box {
             position: fixed;
@@ -178,7 +175,6 @@
             font-weight: 600;
         }
 
-
         /* --- RIGHT PANEL: System Check/Controls (DESKTOP) --- */
         .controls-panel {
             width: 28%;
@@ -186,12 +182,10 @@
             border-left: 1px solid #dee2e6;
             min-height: 750px;
         }
-        
         /* Feedback Colors */
         .feedback-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .feedback-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .feedback-neutral { background: #e9ecef; color: #495057; border: 1px solid #ced4da; }
-        
         /* --- BUTTONS --- */
         button {
             width: 100%;
@@ -209,7 +203,6 @@
         #hint-btn { background: #ffc107; color: #343a40; }
         #next-btn { background: #28a745; color: white; }
         #reset-btn { background: #dc3545; color: white; }
-        
         /* --- START/END SCREEN --- */
         .overlay-screen {
             position: absolute; 
@@ -229,7 +222,6 @@
             20%, 60% { transform: translateX(-10px); }
             40%, 80% { transform: translateX(10px); }
         }
-
 
         /* ======================================================= */
         /* --- MOBILE OPTIMIZATION (Max-width 768px) --- */
@@ -258,7 +250,6 @@
                 border-radius: 0;
                 border: none;
             }
-            
             /* STICKY EVENT PANEL (Top) */
             .event-panel {
                 order: 1; 
@@ -276,7 +267,6 @@
                 padding: 10px;
             }
             .score-display { font-size: 1em; }
-
 
             /* BALANCE SHEET PANEL (Main Scrollable Content) */
             .balance-sheet-panel {
@@ -304,7 +294,6 @@
             .total-row {
                 font-size: 1.3em; /* **MOBILE READABILITY IMPROVEMENT** */
             }
-
             /* STICKY CONTROLS PANEL (Bottom) */
             .controls-panel {
                 order: 3; 
@@ -334,7 +323,6 @@
                 min-height: 40px;
                 box-shadow: none;
             }
-            
             /* ADJUST START/END SCREEN FOR MOBILE */
             .overlay-screen {
                 position: fixed;
@@ -346,12 +334,11 @@
                 transform: translate(-50%, -50%);
                 padding: 25px;
             }
-            
             #concept-info-box {
                 width: 90%;
                 padding: 15px;
             }
-        }
+        }    
     </style>
 </head>
 <body>
@@ -369,7 +356,6 @@
     </div>
 
     <div id="game-interface" class="game-container" style="display: none;">
-
         <div class="panel event-panel">
             <h2>Current Event (Transaction)</h2>
             <div id="event-number" style="font-size: 1.8em; color: #343a40; margin-bottom: 10px; font-weight: 700;">Event 1</div>
@@ -381,7 +367,7 @@
         <div class="panel balance-sheet-panel">
             <h1>Balance Sheet ($)</h1>
             <div class="account-table">
-                
+                                
                 <h3>ASSETS</h3>
                 <div class="account-row">
                     <label>Cash
@@ -449,7 +435,7 @@
                 </div>
 
             </div>
-            
+                        
             <div style="width: 100%; margin-top: 20px;">
                 <div class="total-row">
                     <label>TOTAL ASSETS</label><span id="total-assets" class="total-value">$0</span>
@@ -524,7 +510,6 @@
                 definition: "The cumulative net income (profit) of the company that has been held in the business, less any dividends paid to shareholders. It increases with profits/revenue and decreases with expenses/dividends."
             }
         };
-
         // NEW FUNCTION: Display concept definition
         function showConceptInfo(conceptKey) {
             const info = CONCEPT_DEFINITIONS[conceptKey];
@@ -532,7 +517,6 @@
             document.getElementById('concept-definition').textContent = info.definition;
             document.getElementById('concept-info-box').style.display = 'block';
         }
-
 
         // --- Game Data ---
         const ALL_TRANSACTIONS = [
@@ -586,7 +570,9 @@
             },
             {
                 event: "You recognized depreciation of $800 on equipment.",
-                updates: { accumulatedDepreciation: -800, retainedEarnings: -800 },
+                // FIX: Accumulated Depreciation must be POSITIVE 800 here because it increases the Contra-Asset balance, 
+                // which is already subtracted from Total Assets later in the code.
+                updates: { accumulatedDepreciation: 800, retainedEarnings: -800 }, 
                 hint: "This is an Expense (reducing Retained Earnings) and increases the Contra-Asset (Accumulated Depreciation).",
                 explanation: "Accumulated Depreciation (Contra-Asset, thus a positive change is a reduction in Asset); Retained Earnings (Equity) decreases due to the expense. Assets = L+E."
             },
@@ -597,7 +583,6 @@
                 explanation: "Retained Earnings (Equity) decreases; Cash (Asset) decreases. Assets = L+E."
             }
         ];
-
         // --- Game State Variables ---
         let playerName = '';
         let balanceSheet = {
@@ -624,8 +609,7 @@
         const nextBtn = document.getElementById('next-btn');
         const hintBtn = document.getElementById('hint-btn');
 
-        // --- Utility Functions ---
-        
+        // --- Utility Functions ---                
         function calculateRealTime() {
             // Read current values from the input fields
             const inputs = {
@@ -648,16 +632,15 @@
 
             document.getElementById('total-assets').textContent = '$' + playerAssets.toLocaleString('en-US');
             document.getElementById('total-l-e').textContent = '$' + playerLE.toLocaleString('en-US');
-            
+
             const isBalanced = Math.abs(playerAssets - playerLE) < 1; 
-            
+                        
             // Update styles immediately
             document.getElementById('total-assets').classList.toggle('match', isBalanced);
             document.getElementById('total-assets').classList.toggle('unmatched', !isBalanced);
             document.getElementById('total-l-e').classList.toggle('match', isBalanced);
             document.getElementById('total-l-e').classList.toggle('unmatched', !isBalanced);
         }
-
 
         function getAccountValue(id) {
             const value = parseInt(document.getElementById(id).value) || 0;
@@ -682,7 +665,7 @@
             }
             nextBtn.disabled = true;
         }
-        
+                
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -692,23 +675,22 @@
         }
 
         // --- Game Logic ---
-
         function startGame() {
             playerName = document.getElementById('playerName').value || 'CFO Trainee';
             startScreen.style.display = 'none';
             gameInterface.style.display = 'flex';
 
             transactionsHistory = shuffle([...ALL_TRANSACTIONS]);
-            
-            // Initial Balance Sheet Setup
+                        
+            // Initial Balance Sheet Setup (must be balanced: Assets 60000 = L+E 60000)
             balanceSheet = {
                 cash: 50000, ar: 0, inventory: 0, equipment: 10000, prepaidExpenses: 0, accumulatedDepreciation: 0,
                 ap: 0, notesPayable: 0, commonStock: 60000, retainedEarnings: 0
             };
-            
+                        
             currentEventIndex = 0;
             currentScore = 0;
-            
+
             renderBalanceSheet();
             loadEvent();
         }
@@ -721,14 +703,14 @@
 
             currentAttempts = 5; 
             hintUsed = false;
-            
+                        
             attemptsEl.textContent = currentAttempts;
 
             const eventData = transactionsHistory[currentEventIndex];
             eventNumEl.textContent = `Event ${currentEventIndex + 1} of ${MAX_EVENTS}`;
             eventEl.innerHTML = eventData.event;
             scoreEl.textContent = currentScore;
-            
+                        
             hintBtn.disabled = false; 
             hintBtn.textContent = `Hint (-${HINT_PENALTY} Pts)`;
 
@@ -738,20 +720,19 @@
 
         function showHint() {
             if (hintUsed) return; 
-
             const eventData = transactionsHistory[currentEventIndex];
 
             currentScore = Math.max(0, currentScore - HINT_PENALTY);
             scoreEl.textContent = currentScore;
-            
+                        
             // Use alert for small screen, feedback box for desktop
             if (window.innerWidth > 768) {
                 feedbackEl.className = 'feedback-neutral';
                 feedbackEl.innerHTML = `💡 <strong>Hint (-${HINT_PENALTY} Points):</strong> ${eventData.hint}`;
-            } else {
-                 alert(`💡 Hint (-${HINT_PENALTY} Points):\n${eventData.hint}`);
+            } else { 
+                alert(`💡 Hint (-${HINT_PENALTY} Points):\n${eventData.hint}`);
             }
-            
+                        
             hintUsed = true;
             hintBtn.disabled = true;
             hintBtn.textContent = 'Hint Used';
@@ -774,82 +755,77 @@
                 correctBalanceSheet[key] += eventData.updates[key];
             }
             
-            // Calculate totals based on player input
-            const playerAssets = playerInputs.cash + playerInputs.ar + playerInputs.inventory + playerInputs.equipment + playerInputs.prepaidExpenses - playerInputs.accumulatedDepreciation;
-            const playerLE = playerInputs.ap + playerInputs.notesPayable + playerInputs.commonStock + playerInputs.retainedEarnings;
-
-            const isBalanced = Math.abs(playerAssets - playerLE) < 1; 
-            
-            // Check if every account matches the correct expected value
             let isCorrect = true;
-            for (const key in playerInputs) {
-                if (playerInputs[key] !== correctBalanceSheet[key]) {
+            for (const key in correctBalanceSheet) {
+                if (correctBalanceSheet[key] !== playerInputs[key]) {
                     isCorrect = false;
                     break;
                 }
             }
-            
+
+            // Calculate real-time totals based on player input for comparison
+            const playerAssets = playerInputs.cash + playerInputs.ar + playerInputs.inventory + playerInputs.equipment + playerInputs.prepaidExpenses - playerInputs.accumulatedDepreciation;
+            const playerLE = playerInputs.ap + playerInputs.notesPayable + playerInputs.commonStock + playerInputs.retainedEarnings;
+            const isBalanced = Math.abs(playerAssets - playerLE) < 1;
+
             if (isCorrect) {
-                if (!hintUsed) {
-                     currentScore += 10;
-                }
-                scoreEl.textContent = currentScore;
-                
+                // Correct answer!
                 if (window.innerWidth > 768) {
                     feedbackEl.className = 'feedback-success';
-                    feedbackEl.innerHTML = '✅ Success! Assets = Liabilities + Equity. The balance is maintained.'; 
+                    feedbackEl.innerHTML = '✅ **Success!** The accounting equation remains balanced. <br>Assets = Liabilities + Equity: $' + playerAssets.toLocaleString('en-US');
                 } else {
-                    alert("✅ Success! The balance is maintained.");
+                    alert('✅ Correct! Equation is balanced.');
                 }
 
-                // Update the official game state balance sheet
-                balanceSheet = playerInputs; 
+                // Update the persistent balance sheet state
+                balanceSheet = correctBalanceSheet; 
                 
-                // Disable inputs and enable next button
-                Array.from(document.querySelectorAll('.account-table input')).forEach(input => input.disabled = true);
+                // Award points
+                currentScore += (isBalanced && !hintUsed) ? 10 : 5; // 10 points for perfect, 5 for hint use
+                scoreEl.textContent = currentScore;
+
                 nextBtn.disabled = false;
-                hintBtn.disabled = true;
-                calculateRealTime(); // Final update to totals display
+                
+                // Disable all input fields until next event
+                for (const key in playerInputs) {
+                    document.getElementById(key).disabled = true;
+                }
 
             } else {
+                // Incorrect answer
                 currentAttempts--;
                 attemptsEl.textContent = currentAttempts;
-                
-                if (currentAttempts > 0) {
-                    let errorMsg;
-                    if (isBalanced) {
-                        errorMsg = '❌ Incorrect Accounts. The equation (A=L+E) is balanced, but your account adjustments are wrong. Try again!'; 
-                    } else {
-                        errorMsg = `❌ System Error: Assets ≠ Liabilities + Equity. Your balance is off by $${(playerAssets - playerLE).toLocaleString('en-US')}. Check your numbers!`; 
-                    }
 
+                if (currentAttempts <= 0) {
+                    // Out of attempts - show explanation and move on
                     if (window.innerWidth > 768) {
                         feedbackEl.className = 'feedback-error';
-                        feedbackEl.innerHTML = `${errorMsg} (Attempts left: ${currentAttempts})`;
+                        feedbackEl.innerHTML = '❌ **Failed this event!** Out of attempts.<br>The correct journal entry was: ' + eventData.explanation + '. Click Next.';
                     } else {
-                        alert(`${errorMsg} (Attempts left: ${currentAttempts})`);
+                         alert(`❌ Failed this event! Out of attempts. The correct entries were: ${eventData.explanation}`);
                     }
-
-                    gameInterface.style.animation = 'shake 0.5s';
-                    setTimeout(() => { gameInterface.style.animation = 'none'; }, 500);
-
-                } else {
-                    // Out of attempts
-                    const finalMsg = `❌ Out of Attempts! Correct answer revealed. Explanation: ${eventData.explanation}`;
-                    if (window.innerWidth > 768) {
-                        feedbackEl.className = 'feedback-error';
-                        feedbackEl.innerHTML = finalMsg;
-                    } else {
-                         alert(finalMsg);
-                    }
-                    
-                    // Show the correct answer
+                    // Force update to correct answer for transparency
                     balanceSheet = correctBalanceSheet;
-                    renderBalanceSheet(); // Renders the correct values
-                    
-                    Array.from(document.querySelectorAll('.account-table input')).forEach(input => input.disabled = true);
+                    renderBalanceSheet(); // Display correct answer
                     nextBtn.disabled = false;
-                    hintBtn.disabled = true;
+
+                } else if (!isBalanced) {
+                    // Still balanced, but the individual accounts are wrong
+                     if (window.innerWidth > 768) {
+                        feedbackEl.className = 'feedback-error';
+                        feedbackEl.innerHTML = `⚠️ **Unbalanced!** Total Assets ($${playerAssets.toLocaleString('en-US')}) does not equal Total L+E ($${playerLE.toLocaleString('en-US')}). ${currentAttempts} attempts left.`;
+                    } else {
+                         alert(`⚠️ Unbalanced! Assets ($${playerAssets.toLocaleString('en-US')}) ≠ L+E ($${playerLE.toLocaleString('en-US')}). ${currentAttempts} attempts left.`);
+                    }
+                    
+                } else {
+                    // Balanced, but the wrong accounts were used (e.g., used Inventory instead of AR)
+                    if (window.innerWidth > 768) {
+                        feedbackEl.className = 'feedback-error';
+                        feedbackEl.innerHTML = `❌ **Incorrect Accounts!** Your sheet is balanced, but the wrong accounts were adjusted. ${currentAttempts} attempts left.`;
+                    } else {
+                         alert(`❌ Incorrect! The total is balanced, but the wrong accounts were adjusted. ${currentAttempts} attempts left.`);
+                    }
                 }
             }
         }
@@ -861,36 +837,35 @@
 
         function endGame() {
             gameInterface.style.display = 'none';
-            endScreen.style.display = 'block';
+            endScreen.style.display = 'flex';
 
-            const maxScore = MAX_EVENTS * 10;
-            const percentage = Math.round((currentScore / maxScore) * 100);
+            let finalRating = "Novice Bookkeeper";
+            let finalMessage = `Great effort, ${playerName}! You completed the simulation.`;
 
-            let rating = '';
-            if (percentage === 100) rating = '👑 Balance Master 🏆';
-            else if (percentage >= 80) rating = '💼 Accounting Ace 📈';
-            else if (percentage >= 60) rating = '📚 Ledger Learner 🧠';
-            else rating = '🔄 Needs Practice 📝';
+            if (currentScore >= 90) {
+                finalRating = "Master CFO 👑";
+                finalMessage = `Outstanding performance, ${playerName}! You achieved a flawless simulation.`;
+            } else if (currentScore >= 60) {
+                finalRating = "Senior Accountant 📈";
+                finalMessage = `Excellent work, ${playerName}! You demonstrated strong accounting skills.`;
+            } else if (currentScore >= 30) {
+                 finalRating = "Trainee Analyst 💡";
+                 finalMessage = `Good start, ${playerName}! Review the concepts to improve your balance sheet speed.`;
+            }
 
-            document.getElementById('end-message').textContent = `Congratulations, ${playerName}! You finished all ${MAX_EVENTS} events.`;
-            document.getElementById('final-score').textContent = `${currentScore}/${maxScore}`;
-            document.getElementById('final-rating').innerHTML = `Rating: ${rating}`;
+            document.getElementById('end-message').textContent = finalMessage;
+            document.getElementById('final-score').innerHTML = `Final Score: <strong>${currentScore} Points</strong>`;
+            document.getElementById('final-rating').innerHTML = `Rating: <strong>${finalRating}</strong>`;
         }
-
+        
         function confirmReset() {
-            if (confirm('Are you sure you want to reset the simulation? All progress will be lost.')) {
+            if (confirm("Are you sure you want to reset the simulation? All progress will be lost.")) {
                 window.location.reload();
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-             // Attach the real-time calculation to all input fields on load
-             const inputs = document.querySelectorAll('.account-table input');
-             inputs.forEach(input => {
-                input.addEventListener('input', calculateRealTime);
-             });
-        });
-
+        // Initialize real-time calculation on load
+        document.addEventListener('DOMContentLoaded', calculateRealTime);
     </script>
 </body>
-</html>s
+</html>d
