@@ -2,671 +2,492 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Balance Boss (Real-Time Balance)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Income Statement Challenge</title>
     <style>
-        /* --- GLOBAL & BASE STYLES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+        
+        /* Tailwind-inspired base styling and custom design */
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            text-align: center;
-            background: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdfa; /* Light mint/teal background */
             margin: 0;
-            padding: 0; 
-            color: #343a40;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            padding: 20px;
+            color: #1f2937; /* Dark text */
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        h1 {
+            color: #0d9488; /* Teal color for emphasis */
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            font-weight: 900;
+        }
+        h2 {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: #0e7490;
         }
 
-        /* --- MAIN LAYOUT (DESKTOP) --- */
-        .game-container {
-            display: flex;
-            width: 100%;
-            max-width: 1250px;
-            background: white;
-            border-radius: 18px;
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            border: 1px solid #e9ecef;
-            min-height: 750px; 
-        }
-        .panel {
-            padding: 30px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-        /* --- LEFT PANEL: Event/Score (DESKTOP) --- */
-        .event-panel {
-            width: 28%;
-            background: #e6f9f7;
-            text-align: left;
-            border-right: 1px solid #dee2e6;
-            min-height: 750px;
-        }
-        .event-panel h2 { 
-            color: #00796b; 
-            margin-top: 0; 
-            font-size: 1.6em; 
-            border-bottom: 2px solid #b2dfdb;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-        #current-event {
-            font-size: 1.35em;
-            font-weight: 600;
-            color: #004d40;
-            padding: 15px;
-            background: #d4f7f5;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        .score-display { 
-            font-size: 1.2em; 
-            color: #555; 
-            font-weight: 500;
-        }
-        /* --- MIDDLE PANEL: Balance Sheet (DESKTOP) --- */
-        .balance-sheet-panel {
-            width: 44%;
-            background: #ffffff;
-            padding: 30px 35px;
-            overflow-y: hidden; 
-        }
-        .balance-sheet-panel h1 {
-            background: #00796b;
+        /* --- Global Button Styling --- */
+        .primary-btn {
+            background-color: #0d9488;
             color: white;
-            padding: 12px;
-            margin-top: 0;
+            padding: 12px 24px;
+            border: none;
             border-radius: 10px;
-            font-size: 1.9em;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3);
+            font-weight: 700;
         }
-        .account-table h3 {
-            background: #b2dfdb;
-            color: #004d40;
-            padding: 10px 12px;
-            margin: 25px 0 8px 0;
-            border-radius: 6px;
+        .primary-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(13, 148, 136, 0.4);
+        }
+        .check-btn {
+            background-color: #ef4444; /* Red Check Button */
+            color: white;
+            padding: 15px 30px;
             font-size: 1.2em;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
         }
-        .account-row {
+        .check-btn:hover {
+            background-color: #dc2626;
+        }
+
+        /* --- Start Screen --- */
+        #start-screen {
+            text-align: center;
+            padding: 40px;
+        }
+        #name-input {
+            padding: 10px;
+            border: 2px solid #0d9488;
+            border-radius: 6px;
+            width: 80%;
+            max-width: 300px;
+            margin: 15px 0 30px 0;
+            font-size: 1em;
+            text-align: center;
+        }
+        .rules-box {
+            background-color: #ecfdf5;
+            border: 1px solid #0d9488;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        /* --- Game Layout --- */
+        #game-screen {
+            display: none;
+        }
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+        }
+        .tax-rate-display {
+            background-color: #cffafe;
+            color: #0e7490;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Item List (Left Panel) */
+        .item-list, .statement {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            height: 650px; /* Increased Fixed height */
+        }
+        .item-list {
+            background-color: #ecfdf5; /* Light green background */
+        }
+        .item-list h2 {
+            color: #047857;
+            border-bottom: 2px solid #a7f3d0;
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        #unsorted-items {
+            overflow-y: auto;
+            max-height: 550px; /* Max height for scrolling */
+            padding-right: 10px;
+        }
+
+        /* Draggable Items */
+        .line-item {
+            cursor: grab;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #34d399; /* Medium green for items */
+            color: #047857;
+            border-radius: 6px;
+            font-weight: 600;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
+        }
+        .line-item[data-sign="-1"] {
+            background-color: #fca5a5; /* Light red for expense items */
+            color: #b91c1c;
+        }
+        .item-value {
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        /* Statement (Right Panel) */
+        .statement {
+            background-color: #e0f2f1; /* Light cyan background */
+            display: flex;
+            flex-direction: column;
+        }
+        .statement h2 {
+            color: #0e7490;
+            border-bottom: 2px solid #67e8f9;
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        #statement-slots-container {
+            overflow-y: auto; /* Enable scrolling for the statement */
+            flex-grow: 1;
+            padding-right: 10px;
+        }
+
+        /* Statement Slots */
+        .statement-slot {
+            padding: 8px;
             margin-bottom: 6px;
-            padding: 6px 0;
-            border-bottom: 1px dotted #e9ecef;
-            font-size: 1.05em;
-        }
-        /* Style for the question mark button */
-        .concept-help-btn {
-            font-size: 1em;
-            cursor: pointer;
-            color: #007bff;
-            margin-left: 8px;
-            padding: 0;
-            background: none;
-            border: none;
-            line-height: 1;
-        }
-        .account-table input {
-            width: 110px;
-            height: 40px;
-            border: 1px solid #ced4da;
-            background: #f8f9fa;
+            min-height: 50px;
             border-radius: 6px;
-            text-align: right;
-            padding-right: 12px;
-            font-weight: 700;
-            font-size: 1.1em;
-            /* Added oninput handler to all inputs - though it's better to use JS for dynamic binding */
+            border: 2px dashed #99f6e4;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: #f0fdfa;
+            color: #4b5563;
+            font-style: italic;
+            transition: background-color 0.2s, border-color 0.3s;
         }
-        .total-row {
+        .slot-header {
             display: flex;
             justify-content: space-between;
-            font-weight: 700;
-            margin-top: 15px;
-            padding: 15px 0;
-            border-top: 3px solid #343a40; 
-            font-size: 1.2em;
-        }
-        .total-value {
-            width: 110px;
-            text-align: right;
-            padding-right: 12px;
-            color: #00796b;
-            letter-spacing: 0.5px;
-        }
-        .total-value.match { color: #28a745; }
-        .total-value.unmatched { color: #dc3545; } /* Highlight imbalance */
-
-        /* Tooltip Box Styles */
-        #concept-info-box {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            background: #fff3cd; /* Light warning color */
-            border: 1px solid #ffeeba;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 200;
-            text-align: left;
-            display: none;
-            font-size: 1em;
-        }
-        #concept-info-box h4 {
-            color: #856404;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        #concept-info-box button {
-            width: 100%;
-            padding: 8px;
-            background: #ffc107;
-            color: #333;
-            border: none;
-            border-radius: 5px;
-            margin-top: 15px;
+            align-items: center;
             font-weight: 600;
         }
-
-        /* --- RIGHT PANEL: System Check/Controls (DESKTOP) --- */
-        .controls-panel {
-            width: 28%;
-            background: #f8f9fa;
-            border-left: 1px solid #dee2e6;
-            min-height: 750px;
-        }
-        /* Feedback Colors */
-        .feedback-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .feedback-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .feedback-neutral { background: #e9ecef; color: #495057; border: 1px solid #ced4da; }
-        /* --- BUTTONS --- */
-        button {
-            width: 100%;
-            padding: 14px;
-            margin: 12px 0;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 700;
-            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+        
+        /* Subtotal Slots (Input Fields) */
+        .subtotal-slot {
+            background-color: #cffafe; /* Cyan background for subtotals */
+            border: 2px solid #06b6d4;
+            padding: 10px;
+            margin: 15px 0;
+            font-weight: 800;
+            color: #0e7490;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        #check-btn { background: #007bff; color: white; }
-        #hint-btn { background: #ffc107; color: #343a40; }
-        #next-btn { background: #28a745; color: white; }
-        #reset-btn { background: #dc3545; color: white; }
-        /* --- START/END SCREEN --- */
-        .overlay-screen {
-            position: absolute; 
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 40px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        .subtotal-input-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .subtotal-slot input {
+            padding: 8px;
+            border: 1px solid #0e7490;
+            border-radius: 4px;
+            width: 150px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        /* Hint Button Styling */
+        .hint-btn {
+            background: none;
+            border: none;
+            color: #0d9488; 
+            font-weight: 800;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 0 5px;
+            margin-left: 5px;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+        .line-item[data-sign="-1"] .hint-btn {
+            color: #b91c1c; 
+        }
+        .subtotal-slot .hint-btn, .statement-slot .hint-btn {
+            color: #0e7490;
+        }
+
+        /* Modal Overlay */
+        #hint-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .hint-modal-content {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 90vw;
             width: 450px;
+            text-align: left;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+        .hint-modal-content h3 {
+            margin-top: 0;
+            color: #0d9488;
+            font-size: 1.5em;
+            border-bottom: 2px solid #e0f2f1;
+            padding-bottom: 10px;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #9ca3af;
+        }
+
+        /* --- Results Screen --- */
+        #results-screen {
             display: none;
             text-align: center;
+            padding: 50px;
         }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-10px); }
-            40%, 80% { transform: translateX(10px); }
+        .score-card {
+            background-color: #f0f9ff; /* Light blue */
+            border: 4px solid #06b6d4;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.2);
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2em;
+            padding: 8px 0;
+            border-bottom: 1px dashed #bae6fd;
+        }
+        .score-item strong {
+            color: #0e7490;
+        }
+        #final-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #047857;
         }
 
-        /* ======================================================= */
-        /* --- MOBILE OPTIMIZATION (Max-width 768px) --- */
-        /* ======================================================= */
+        /* Validation Colors */
+        .correct { border-color: #10b981 !important; background-color: #d1fae5 !important; }
+        .incorrect { border-color: #f87171 !important; background-color: #fee2e2 !important; }
+        .line-item.incorrect-item { background-color: #b91c1c !important; color: white !important; }
+        .line-item.correct-item { background-color: #047857 !important; color: white !important; }
+        .line-item.correct-item .hint-btn { color: white !important; }
+        .line-item.incorrect-item .hint-btn { color: white !important; }
+        
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            body { 
-                padding: 0;
-                align-items: stretch;
-                min-height: 100vh;
+            .game-layout {
+                grid-template-columns: 1fr;
             }
-            .game-container {
-                flex-direction: column;
-                max-width: 100%;
+            .subtotal-slot input {
                 width: 100%;
-                border-radius: 0;
-                box-shadow: none;
-                min-height: 100vh;
-                height: auto;
-                border: none;
+                margin-top: 10px;
             }
-            .panel {
-                width: 100% !important;
-                padding: 15px;
-                min-height: auto !important;
-                height: auto !important;
-                border-radius: 0;
-                border: none;
+            .item-list, .statement {
+                height: 450px; /* Adjust height for smaller screens */
             }
-            /* STICKY EVENT PANEL (Top) */
-            .event-panel {
-                order: 1; 
-                position: sticky;
-                top: 0;
-                z-index: 100; 
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                border-bottom: 2px solid #00796b;
-            }
-            /* **MOBILE READABILITY IMPROVEMENT** */
-            .event-panel h2 { font-size: 1.4em; }
-            #event-number { font-size: 1.5em; }
-            #current-event { 
-                font-size: 1.1em; /* Ensure event text is readable */
-                padding: 10px;
-            }
-            .score-display { font-size: 1em; }
-
-            /* BALANCE SHEET PANEL (Main Scrollable Content) */
-            .balance-sheet-panel {
-                order: 2; 
-                padding-bottom: 100px; /* Space for the fixed controls panel */
-                padding-top: 10px;
-                overflow-y: scroll; 
-                flex-grow: 1; 
-                height: auto;
-            }
-            .balance-sheet-panel h1 {
-                font-size: 1.5em;
-            }
-            .account-table h3 {
-                font-size: 1.1em;
-            }
-            .account-row {
-                font-size: 1.1em; /* **MOBILE READABILITY IMPROVEMENT** */
-            }
-            .account-table input {
-                width: 100px;
-                height: 44px; /* **MOBILE READABILITY IMPROVEMENT: Bigger touch target** */
-                font-size: 1.1em; /* **MOBILE READABILITY IMPROVEMENT** */
-            }
-            .total-row {
-                font-size: 1.3em; /* **MOBILE READABILITY IMPROVEMENT** */
-            }
-            /* STICKY CONTROLS PANEL (Bottom) */
-            .controls-panel {
-                order: 3; 
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%; /* Important for fixed positioning */
-                z-index: 100;
-                background: white;
-                box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-                padding: 10px 15px;
-                border-top: 2px solid #dee2e6;
-                display: flex;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .controls-panel h2, #feedback-box, #reset-btn {
-                display: none;
-            }
-            button {
-                width: 32%; /* Adjust width to fit three main buttons */
-                margin: 5px 1px;
-                padding: 10px;
-                font-size: 0.9em;
-                min-height: 40px;
-                box-shadow: none;
-            }
-            /* ADJUST START/END SCREEN FOR MOBILE */
-            .overlay-screen {
-                position: fixed;
-                width: 90%;
-                max-width: 90%;
-                margin: 0;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                padding: 25px;
-            }
-            #concept-info-box {
-                width: 90%;
-                padding: 15px;
-            }
-        }    
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
-    <div id="concept-info-box">
-        <h4><span id="concept-title"></span></h4>
-        <p id="concept-definition"></p>
-        <button onclick="document.getElementById('concept-info-box').style.display = 'none';">Got it!</button>
-    </div>
+    <div class="container">
+        
+        <!-- Start Screen (Input Name and Rules) -->
+        <div id="start-screen">
+            <h1>Advanced Income Statement Challenge 🧠</h1>
+            <h2>Test Your Multi-Step Financial Acumen!</h2>
+            
+            <p style="font-size:1.1em; margin-bottom:10px;">Enter your name to begin the advanced challenge:</p>
+            <input type="text" id="name-input" placeholder="Your Name" value="Financial Analyst" maxlength="30">
+            
+            <button class="primary-btn" onclick="startChallenge()">Start Challenge</button>
 
-    <div id="start-screen" class="overlay-screen" style="display: flex; flex-direction: column; align-items: center;">
-        <h1>Balance Boss 💼</h1>
-        <p>Welcome, CFO! Enter your name to begin the financial simulation.</p>
-        <input type="text" id="playerName" placeholder="Enter your name">
-        <button onclick="startGame()">Start Simulation</button>
-    </div>
-
-    <div id="game-interface" class="game-container" style="display: none;">
-        <div class="panel event-panel">
-            <h2>Current Event (Transaction)</h2>
-            <div id="event-number" style="font-size: 1.8em; color: #343a40; margin-bottom: 10px; font-weight: 700;">Event 1</div>
-            <div id="current-event"></div>
-            <div class="score-display">Score: <span id="current-score">0</span></div>
-            <div class="score-display" style="margin-top: 5px;">Attempts Left: <span id="attempts-left">5</span></div>
-        </div>
-
-        <div class="panel balance-sheet-panel">
-            <h1>Balance Sheet ($)</h1>
-            <div class="account-table">
-                                
-                <h3>ASSETS</h3>
-                <div class="account-row">
-                    <label>Cash
-                        <span class="concept-help-btn" onclick="showConceptInfo('cash')">❓</span>
-                    </label>
-                    <input type="number" id="cash" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Accounts Receivable
-                        <span class="concept-help-btn" onclick="showConceptInfo('ar')">❓</span>
-                    </label>
-                    <input type="number" id="ar" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Inventory
-                        <span class="concept-help-btn" onclick="showConceptInfo('inventory')">❓</span>
-                    </label>
-                    <input type="number" id="inventory" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Equipment
-                        <span class="concept-help-btn" onclick="showConceptInfo('equipment')">❓</span>
-                    </label>
-                    <input type="number" id="equipment" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Prepaid Expenses
-                        <span class="concept-help-btn" onclick="showConceptInfo('prepaidExpenses')">❓</span>
-                    </label>
-                    <input type="number" id="prepaidExpenses" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Accumulated Depreciation
-                        <span class="concept-help-btn" onclick="showConceptInfo('accumulatedDepreciation')">❓</span>
-                    </label>
-                    <input type="number" id="accumulatedDepreciation" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-
-                <h3>LIABILITIES</h3>
-                <div class="account-row">
-                    <label>Accounts Payable
-                        <span class="concept-help-btn" onclick="showConceptInfo('ap')">❓</span>
-                    </label>
-                    <input type="number" id="ap" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Notes Payable (Loan)
-                        <span class="concept-help-btn" onclick="showConceptInfo('notesPayable')">❓</span>
-                    </label>
-                    <input type="number" id="notesPayable" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-
-                <h3>SHAREHOLDERS' EQUITY</h3>
-                <div class="account-row">
-                    <label>Common Stock
-                        <span class="concept-help-btn" onclick="showConceptInfo('commonStock')">❓</span>
-                    </label>
-                    <input type="number" id="commonStock" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-                <div class="account-row">
-                    <label>Retained Earnings
-                        <span class="concept-help-btn" onclick="showConceptInfo('retainedEarnings')">❓</span>
-                    </label>
-                    <input type="number" id="retainedEarnings" value="0" oninput="clearFeedback(); calculateRealTime();">
-                </div>
-
-            </div>
-                        
-            <div style="width: 100%; margin-top: 20px;">
-                <div class="total-row">
-                    <label>TOTAL ASSETS</label><span id="total-assets" class="total-value">$0</span>
-                </div>
-                <div class="total-row">
-                    <label>TOTAL LIABILITIES + EQUITY</label><span id="total-l-e" class="total-value">$0</span>
-                </div>
+            <div class="rules-box">
+                <h2>Game Rules (Advanced)</h2>
+                <ol style="padding-left: 20px;">
+                    <li>**Sequence:** Drag the **9** financial line items from the left into the correct order on the Income Statement structure on the right.</li>
+                    <li>**Calculation:** You must calculate and enter the correct dollar values for **FOUR** subtotals: **Gross Profit**, **EBIT**, **EBT**, and **Net Income**.</li>
+                    <li>**Tax Calculation:** To find the **Income Tax Expense**, you must apply the fixed **Tax Rate of 25%** to the calculated **Earnings Before Tax (EBT)** value.</li>
+                    <li>**Scoring:** You get 1 point for each correctly placed item (9 max) and 1 point for each correct subtotal calculation (4 max). **Total score is 13 points.**</li>
+                    <li>**Hints:** Click the **?** button next to any element for a hint on its purpose and required calculation steps.</li>
+                </ol>
             </div>
         </div>
 
-        <div class="panel controls-panel">
-            <h2>System Check</h2>
-            <div id="feedback-box" class="feedback-neutral">
-                System is ready. Adjust the account balances and click 'Check Balance'.
+        <!-- Game Screen (Hidden until started) -->
+        <div id="game-screen">
+            <h1 id="game-title"></h1>
+            <div class="tax-rate-display">
+                Required Tax Rate: 
+                <span style="color: #ef4444; font-size: 1.2em; margin-left: 5px;">25%</span> (Applied to EBT)
             </div>
-            <button id="check-btn" onclick="checkBalance()">Check Balance</button>
-            <button id="hint-btn" onclick="showHint()">Hint (-5 Pts)</button>
-            <button id="next-btn" onclick="nextEvent()" disabled>Next >></button>
-            <button id="reset-btn" onclick="confirmReset()">Reset Simulation</button>
+            <div id="score-display" style="text-align:right; font-weight:bold; margin-bottom:10px; font-size:1.1em;"></div>
+
+            <div class="game-layout">
+                <!-- Left Panel: Unsorted Items -->
+                <div class="item-list">
+                    <h2>Available Line Items (9)</h2>
+                    <div class="item-placeholder" style="text-align:center; padding:10px; color:#6b7280;">Drag items from here into the statement slots on the right.</div>
+                    <div id="unsorted-items">
+                        <!-- Items populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Right Panel: Income Statement Structure -->
+                <div class="statement">
+                    <h2>Statement Structure</h2>
+                    <div id="statement-slots-container">
+                        <div id="statement-slots">
+                            <!-- Slots populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div id="feedback"></div>
+                <button class="primary-btn check-btn" onclick="checkAnswers()">Check Order & Calculations 📝</button>
+            </div>
+        </div>
+        
+        <!-- Results Screen (Hidden until completion) -->
+        <div id="results-screen">
+            <h1>🎉 Challenge Complete! 🎉</h1>
+            <h2 id="results-greeting"></h2>
+            
+            <div class="score-card">
+                <div class="score-item">Order Score: <strong><span id="result-order"></span>/9</strong></div>
+                <div class="score-item">Calculation Score: <strong><span id="result-calc"></span>/4</strong></div>
+                <div class="score-item" style="border-bottom: none; font-size: 1.5em; margin-top: 10px;">Total Points Earned: <strong><span id="result-total"></span>/13</strong></div>
+            </div>
+
+            <p id="final-message"></p>
+
+            <button class="primary-btn" style="margin-top: 40px;" onclick="location.reload()">Start New Challenge</button>
         </div>
     </div>
-
-    <div id="end-screen" class="overlay-screen">
-        <h1>Simulation Complete! 🎉</h1>
-        <p id="end-message"></p>
-        <div id="final-score"></div>
-        <div id="final-rating"></div>
-        <button onclick="window.location.reload()" style="margin-top: 20px;">Start New Game</button>
+    
+    <!-- Hint Modal Structure -->
+    <div id="hint-modal-overlay" onclick="hideHintModal()">
+        <div class="hint-modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="hideHintModal()">×</button>
+            <h3 id="hint-modal-title"></h3>
+            <p id="hint-modal-text"></p>
+        </div>
     </div>
 
     <script>
-        // --- Concept Definitions for Tooltip ---
-        const CONCEPT_DEFINITIONS = {
-            cash: {
-                title: "Cash",
-                definition: "The most liquid asset, representing physical currency and funds held in bank accounts. Used to pay immediate debts and expenses."
-            },
-            ar: {
-                title: "Accounts Receivable",
-                definition: "Money owed to the company by customers for goods or services already delivered on credit. It is expected to be collected soon."
-            },
-            inventory: {
-                title: "Inventory",
-                definition: "Goods a company holds for sale (e.g., products, raw materials). It is an asset until it is sold and converted into cash or accounts receivable."
-            },
-            equipment: {
-                title: "Equipment",
-                definition: "Long-term tangible assets (Property, Plant, and Equipment) like machinery, vehicles, and furniture used in the business operations."
-            },
-            prepaidExpenses: {
-                title: "Prepaid Expenses",
-                definition: "Payments made by the company in advance for services or goods that will be used in the future (e.g., prepaid rent or insurance)."
-            },
-            accumulatedDepreciation: {
-                title: "Accumulated Depreciation",
-                definition: "A Contra-Asset account. It represents the total amount of an asset's cost that has been charged to expense (depreciation) since the asset was acquired. It **reduces** total assets."
-            },
-            ap: {
-                title: "Accounts Payable",
-                definition: "Money the company owes to suppliers or vendors for purchases made on credit. It is a short-term obligation."
-            },
-            notesPayable: {
-                title: "Notes Payable (Loan)",
-                definition: "A formal written promise to pay a fixed amount of money to a lender (like a bank) on a specific date. This is typically a longer-term liability."
-            },
-            commonStock: {
-                title: "Common Stock",
-                definition: "The amount of money raised from investors by issuing shares in exchange for cash or other assets. This is the owners' initial investment in the company."
-            },
-            retainedEarnings: {
-                title: "Retained Earnings",
-                definition: "The cumulative net income (profit) of the company that has been held in the business, less any dividends paid to shareholders. It increases with profits/revenue and decreases with expenses/dividends."
-            }
-        };
-        // NEW FUNCTION: Display concept definition
-        function showConceptInfo(conceptKey) {
-            const info = CONCEPT_DEFINITIONS[conceptKey];
-            document.getElementById('concept-title').textContent = info.title;
-            document.getElementById('concept-definition').textContent = info.definition;
-            document.getElementById('concept-info-box').style.display = 'block';
-        }
-
-        // --- Game Data ---
-        const ALL_TRANSACTIONS = [
-            {
-                event: "You bought Equipment for $20,000 cash.",
-                updates: { cash: -20000, equipment: 20000 },
-                hint: "This is an Asset for Asset trade. One Asset goes up, one Asset goes down.",
-                explanation: "Cash (Asset) decreases; Equipment (Asset) increases. Assets are unchanged."
-            },
-            {
-                event: "You borrowed $5,000 from the bank (increased Notes Payable).",
-                updates: { cash: 5000, notesPayable: 5000 },
-                hint: "You received an Asset (Cash) and created a Liability (Note Payable).",
-                explanation: "Cash (Asset) increases; Notes Payable (Liability) increases. Accounting Equation remains balanced."
-            },
-            {
-                event: "You sold goods worth $3,000 on credit (Accounts Receivable).",
-                updates: { ar: 3000, retainedEarnings: 3000 },
-                hint: "A credit sale increases an Asset (AR) and increases Equity (Retained Earnings via Revenue).",
-                explanation: "Accounts Receivable (Asset) increases due to sales; Retained Earnings (Equity) increases due to profit (Revenue). Assets = L+E."
-            },
-            {
-                event: "You repaid $2,000 of your bank loan (Notes Payable).",
-                updates: { cash: -2000, notesPayable: -2000 },
-                hint: "You are reducing an Asset (Cash) and reducing a Liability (Notes Payable).",
-                explanation: "Cash (Asset) decreases; Notes Payable (Liability) decreases. Assets = L+E."
-            },
-            {
-                event: "You received $1,000 cash from a customer who owed you (Accounts Receivable).",
-                updates: { cash: 1000, ar: -1000 },
-                hint: "This is an Asset for Asset swap. Cash replaces Accounts Receivable.",
-                explanation: "Cash (Asset) increases; Accounts Receivable (Asset) decreases. Total Assets are unchanged."
-            },
-            {
-                event: "You paid salaries worth $1,200.",
-                updates: { cash: -1200, retainedEarnings: -1200 },
-                hint: "An expense reduces Cash and reduces Equity (Retained Earnings).",
-                explanation: "Cash (Asset) decreases; Retained Earnings (Equity) decreases due to the expense. Assets = L+E."
-            },
-            {
-                event: "You issued new shares for $10,000 cash.",
-                updates: { cash: 10000, commonStock: 10000 },
-                hint: "You receive an Asset (Cash) and increase Equity (Common Stock).",
-                explanation: "Cash (Asset) increases; Common Stock (Equity) increases. Assets = L+E."
-            },
-            {
-                event: "You paid $500 rent in advance (Prepaid Expenses).",
-                updates: { cash: -500, prepaidExpenses: 500 },
-                hint: "This is an Asset for Asset trade. Cash goes down, Prepaid Expenses (an Asset) goes up.",
-                explanation: "Cash (Asset) decreases; Prepaid Expenses (Asset) increases. Total Assets are unchanged."
-            },
-            {
-                event: "You recognized depreciation of $800 on equipment.",
-                // FIX: Accumulated Depreciation must be POSITIVE 800 here because it increases the Contra-Asset balance, 
-                // which is already subtracted from Total Assets later in the code.
-                updates: { accumulatedDepreciation: 800, retainedEarnings: -800 }, 
-                hint: "This is an Expense (reducing Retained Earnings) and increases the Contra-Asset (Accumulated Depreciation).",
-                explanation: "Accumulated Depreciation (Contra-Asset, thus a positive change is a reduction in Asset); Retained Earnings (Equity) decreases due to the expense. Assets = L+E."
-            },
-            {
-                event: "You declared dividends of $600 (a reduction in Retained Earnings).",
-                updates: { retainedEarnings: -600, cash: -600 },
-                hint: "Dividends reduce Cash and reduce Equity (Retained Earnings).",
-                explanation: "Retained Earnings (Equity) decreases; Cash (Asset) decreases. Assets = L+E."
-            }
+        // --- CONSTANTS & GAME DATA ---
+        const TAX_RATE = 0.25;
+        const LINE_ITEMS_DATA = [
+            { name: "Sales Revenue", type: "Revenue", value: 500000, sign: 1, hint: "The total income from sales. The first line." },
+            { name: "Cost of Goods Sold (COGS)", type: "COGS", value: 150000, sign: -1, hint: "Direct costs of production, subtracted from Revenue to find Gross Profit." },
+            { name: "Salaries Expense (SG&A)", type: "OpEx", value: 60000, sign: -1, hint: "A common Selling, General, and Administrative (SG&A) cost. Part of Operating Expenses." },
+            { name: "Rent Expense (Office)", type: "OpEx", value: 20000, sign: -1, hint: "Administrative cost related to occupancy. Part of Operating Expenses." },
+            { name: "Depreciation Expense", type: "OpEx", value: 10000, sign: -1, hint: "Non-cash cost spreading asset purchase over time. Part of Operating Expenses." },
+            { name: "Marketing Expense", type: "OpEx", value: 30000, sign: -1, hint: "Cost of advertising and promoting the product/service. Part of Operating Expenses." },
+            { name: "R&D Expense", type: "OpEx", value: 20000, sign: -1, hint: "Costs related to innovation and development. Part of Operating Expenses." },
+            { name: "Interest Income", type: "NonOp", value: 5000, sign: 1, hint: "Income from non-core activities (e.g., cash investments). Added after EBIT." },
+            { name: "Interest Expense", type: "NonOp", value: 15000, sign: -1, hint: "Cost of servicing debt. Subtracted after EBIT." },
         ];
-        // --- Game State Variables ---
-        let playerName = '';
-        let balanceSheet = {
-            cash: 0, ar: 0, inventory: 0, equipment: 0, prepaidExpenses: 0, accumulatedDepreciation: 0,
-            ap: 0, notesPayable: 0, commonStock: 0, retainedEarnings: 0
+
+        // Defines the structure of the Income Statement (14 slots total)
+        const STATEMENT_STRUCTURE = [
+            { id: 1, label: "Revenue", slotType: "draggable", correctType: "Revenue", hint: "The primary source of income. It must be the first line." },
+            { id: 2, label: "Less: COGS", slotType: "draggable", correctType: "COGS", hint: "Directly linked to sales, subtracted right after Revenue." },
+            { id: 3, label: "Gross Profit", slotType: "subtotal", hint: "Revenue minus COGS. Represents profitability before operating costs.", subtotalName: "Gross Profit" },
+            { id: 4, label: "Less: Operating Expense 1", slotType: "draggable", correctType: "OpEx", hint: "One of the five Operating Expenses (SG&A, Rent, Depreciation, Marketing, R&D). Order among OpEx items is flexible." },
+            { id: 5, label: "Less: Operating Expense 2", slotType: "draggable", correctType: "OpEx", hint: "One of the five Operating Expenses. Order among OpEx items is flexible." },
+            { id: 6, label: "Less: Operating Expense 3", slotType: "draggable", correctType: "OpEx", hint: "One of the five Operating Expenses. Order among OpEx items is flexible." },
+            { id: 7, label: "Less: Operating Expense 4", slotType: "draggable", correctType: "OpEx", hint: "One of the five Operating Expenses. Order among OpEx items is flexible." },
+            { id: 8, label: "Less: Operating Expense 5", slotType: "draggable", correctType: "OpEx", hint: "One of the five Operating Expenses. Order among OpEx items is flexible." },
+            { id: 9, label: "EBIT (Operating Income)", slotType: "subtotal", hint: "Gross Profit minus all Operating Expenses. Shows core business profitability.", subtotalName: "EBIT (Operating Income)" },
+            { id: 10, label: "Non-Operating Income", slotType: "draggable", correctType: "NonOp", hint: "Gains from non-core business activities, added after EBIT." },
+            { id: 11, label: "Less: Non-Operating Expense", slotType: "draggable", correctType: "NonOp", hint: "Costs from non-core business activities, subtracted after EBIT." },
+            { id: 12, label: "EBT (Earnings Before Tax)", slotType: "subtotal", hint: "EBIT plus/minus Non-Operating Income/Expenses. This is the figure the tax rate is applied to!", subtotalName: "EBT (Earnings Before Tax)" },
+            { id: 13, label: "Less: Income Tax Expense", slotType: "subtotal", hint: `THIS IS A CALCULATION. You must calculate the tax using EBT * ${TAX_RATE * 100}%.`, subtotalName: "Income Tax Expense" },
+            { id: 14, label: "Net Income", slotType: "subtotal", hint: "The bottom line! EBT minus Income Tax Expense. The final profit figure.", subtotalName: "Net Income" },
+        ];
+
+        let state = {
+            playerName: "Student",
+            currentItems: [], 
+            itemPlacement: {}, 
+            correctValues: {}, 
+            totalOrderSlots: STATEMENT_STRUCTURE.filter(s => s.slotType === 'draggable').length, // 9
+            orderCorrect: 0,
+            calculationCorrect: 0,
+            maxScore: 13 // 9 order + 4 calc
         };
-        let transactionsHistory = [];
-        let currentEventIndex = 0;
-        let currentScore = 0;
-        let currentAttempts = 5; 
-        let hintUsed = false; 
-        const HINT_PENALTY = 5;
-        const MAX_EVENTS = ALL_TRANSACTIONS.length;
 
-        // --- DOM Elements ---
-        const gameInterface = document.getElementById('game-interface');
-        const startScreen = document.getElementById('start-screen');
-        const endScreen = document.getElementById('end-screen');
-        const eventNumEl = document.getElementById('event-number');
-        const eventEl = document.getElementById('current-event');
-        const scoreEl = document.getElementById('current-score');
-        const attemptsEl = document.getElementById('attempts-left');
-        const feedbackEl = document.getElementById('feedback-box');
-        const nextBtn = document.getElementById('next-btn');
-        const hintBtn = document.getElementById('hint-btn');
+        // --- UTILITY FUNCTIONS ---
 
-        // --- Utility Functions ---                
-        function calculateRealTime() {
-            // Read current values from the input fields
-            const inputs = {
-                cash: getAccountValue('cash'),
-                ar: getAccountValue('ar'),
-                inventory: getAccountValue('inventory'),
-                equipment: getAccountValue('equipment'),
-                prepaidExpenses: getAccountValue('prepaidExpenses'),
-                accumulatedDepreciation: getAccountValue('accumulatedDepreciation'),
-                ap: getAccountValue('ap'),
-                notesPayable: getAccountValue('notesPayable'),
-                commonStock: getAccountValue('commonStock'),
-                retainedEarnings: getAccountValue('retainedEarnings')
-            };
-
-            // Calculate Assets (Accumulated Depreciation is a Contra-Asset, so it's subtracted)
-            const playerAssets = inputs.cash + inputs.ar + inputs.inventory + inputs.equipment + inputs.prepaidExpenses - inputs.accumulatedDepreciation;
-            // Calculate Liabilities + Equity
-            const playerLE = inputs.ap + inputs.notesPayable + inputs.commonStock + inputs.retainedEarnings;
-
-            document.getElementById('total-assets').textContent = '$' + playerAssets.toLocaleString('en-US');
-            document.getElementById('total-l-e').textContent = '$' + playerLE.toLocaleString('en-US');
-
-            const isBalanced = Math.abs(playerAssets - playerLE) < 1; 
-                        
-            // Update styles immediately
-            document.getElementById('total-assets').classList.toggle('match', isBalanced);
-            document.getElementById('total-assets').classList.toggle('unmatched', !isBalanced);
-            document.getElementById('total-l-e').classList.toggle('match', isBalanced);
-            document.getElementById('total-l-e').classList.toggle('unmatched', !isBalanced);
+        function formatCurrency(value) {
+            // Displays positive numbers without a sign, and negative numbers with parentheses (standard accounting format)
+            const absoluteValue = Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            return value < 0 ? `($${absoluteValue})` : `$${absoluteValue}`;
         }
 
-        function getAccountValue(id) {
-            const value = parseInt(document.getElementById(id).value) || 0;
-            return value;
-        }
-
-        function renderBalanceSheet() {
-            for (const key in balanceSheet) {
-                const inputEl = document.getElementById(key);
-                if (inputEl) {
-                    inputEl.value = balanceSheet[key];
-                    inputEl.disabled = false;
-                }
-            }
-            calculateRealTime(); // Use real-time calculator for initial render
-        }
-
-        function clearFeedback() {
-            if (window.innerWidth > 768) {
-                feedbackEl.className = 'feedback-neutral';
-                feedbackEl.textContent = 'System is ready. Adjust the account balances and click \'Check Balance\'.';
-            }
-            nextBtn.disabled = true;
-        }
-                
-        function shuffle(array) {
+        function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
@@ -674,198 +495,350 @@
             return array;
         }
 
-        // --- Game Logic ---
-        function startGame() {
-            playerName = document.getElementById('playerName').value || 'CFO Trainee';
-            startScreen.style.display = 'none';
-            gameInterface.style.display = 'flex';
+        // --- GAME FLOW FUNCTIONS ---
 
-            transactionsHistory = shuffle([...ALL_TRANSACTIONS]);
-                        
-            // Initial Balance Sheet Setup (must be balanced: Assets 60000 = L+E 60000)
-            balanceSheet = {
-                cash: 50000, ar: 0, inventory: 0, equipment: 10000, prepaidExpenses: 0, accumulatedDepreciation: 0,
-                ap: 0, notesPayable: 0, commonStock: 60000, retainedEarnings: 0
-            };
-                        
-            currentEventIndex = 0;
-            currentScore = 0;
-
-            renderBalanceSheet();
-            loadEvent();
-        }
-
-        function loadEvent() {
-            if (currentEventIndex >= MAX_EVENTS) {
-                endGame();
-                return;
-            }
-
-            currentAttempts = 5; 
-            hintUsed = false;
-                        
-            attemptsEl.textContent = currentAttempts;
-
-            const eventData = transactionsHistory[currentEventIndex];
-            eventNumEl.textContent = `Event ${currentEventIndex + 1} of ${MAX_EVENTS}`;
-            eventEl.innerHTML = eventData.event;
-            scoreEl.textContent = currentScore;
-                        
-            hintBtn.disabled = false; 
-            hintBtn.textContent = `Hint (-${HINT_PENALTY} Pts)`;
-
-            renderBalanceSheet();
-            clearFeedback();
-        }
-
-        function showHint() {
-            if (hintUsed) return; 
-            const eventData = transactionsHistory[currentEventIndex];
-
-            currentScore = Math.max(0, currentScore - HINT_PENALTY);
-            scoreEl.textContent = currentScore;
-                        
-            // Use alert for small screen, feedback box for desktop
-            if (window.innerWidth > 768) {
-                feedbackEl.className = 'feedback-neutral';
-                feedbackEl.innerHTML = `💡 <strong>Hint (-${HINT_PENALTY} Points):</strong> ${eventData.hint}`;
-            } else { 
-                alert(`💡 Hint (-${HINT_PENALTY} Points):\n${eventData.hint}`);
-            }
-                        
-            hintUsed = true;
-            hintBtn.disabled = true;
-            hintBtn.textContent = 'Hint Used';
-        }
-
-        function checkBalance() {
-            // Get the current player input values
-            const playerInputs = {
-                cash: getAccountValue('cash'), ar: getAccountValue('ar'), inventory: getAccountValue('inventory'), 
-                equipment: getAccountValue('equipment'), prepaidExpenses: getAccountValue('prepaidExpenses'), 
-                accumulatedDepreciation: getAccountValue('accumulatedDepreciation'), ap: getAccountValue('ap'), 
-                notesPayable: getAccountValue('notesPayable'), commonStock: getAccountValue('commonStock'), 
-                retainedEarnings: getAccountValue('retainedEarnings')
-            };
-
-            // Calculate the correct expected balance sheet after the transaction
-            let correctBalanceSheet = { ...balanceSheet };
-            const eventData = transactionsHistory[currentEventIndex];
-            for (const key in eventData.updates) {
-                correctBalanceSheet[key] += eventData.updates[key];
-            }
+        function calculateCorrectValues(items) {
+            // Find all component values based on type, using the signed value
+            const revenue = items.find(i => i.type === 'Revenue').value * items.find(i => i.type === 'Revenue').sign;
+            const cogs = items.find(i => i.type === 'COGS').value * items.find(i => i.type === 'COGS').sign;
+            const opEx = items.filter(i => i.type === 'OpEx').reduce((sum, item) => sum + (item.value * item.sign), 0);
+            const nonOp = items.filter(i => i.type === 'NonOp').reduce((sum, item) => sum + (item.value * item.sign), 0);
             
-            let isCorrect = true;
-            for (const key in correctBalanceSheet) {
-                if (correctBalanceSheet[key] !== playerInputs[key]) {
-                    isCorrect = false;
-                    break;
-                }
-            }
-
-            // Calculate real-time totals based on player input for comparison
-            const playerAssets = playerInputs.cash + playerInputs.ar + playerInputs.inventory + playerInputs.equipment + playerInputs.prepaidExpenses - playerInputs.accumulatedDepreciation;
-            const playerLE = playerInputs.ap + playerInputs.notesPayable + playerInputs.commonStock + playerInputs.retainedEarnings;
-            const isBalanced = Math.abs(playerAssets - playerLE) < 1;
-
-            if (isCorrect) {
-                // Correct answer!
-                if (window.innerWidth > 768) {
-                    feedbackEl.className = 'feedback-success';
-                    feedbackEl.innerHTML = '✅ **Success!** The accounting equation remains balanced. <br>Assets = Liabilities + Equity: $' + playerAssets.toLocaleString('en-US');
-                } else {
-                    alert('✅ Correct! Equation is balanced.');
-                }
-
-                // Update the persistent balance sheet state
-                balanceSheet = correctBalanceSheet; 
-                
-                // Award points
-                currentScore += (isBalanced && !hintUsed) ? 10 : 5; // 10 points for perfect, 5 for hint use
-                scoreEl.textContent = currentScore;
-
-                nextBtn.disabled = false;
-                
-                // Disable all input fields until next event
-                for (const key in playerInputs) {
-                    document.getElementById(key).disabled = true;
-                }
-
-            } else {
-                // Incorrect answer
-                currentAttempts--;
-                attemptsEl.textContent = currentAttempts;
-
-                if (currentAttempts <= 0) {
-                    // Out of attempts - show explanation and move on
-                    if (window.innerWidth > 768) {
-                        feedbackEl.className = 'feedback-error';
-                        feedbackEl.innerHTML = '❌ **Failed this event!** Out of attempts.<br>The correct journal entry was: ' + eventData.explanation + '. Click Next.';
-                    } else {
-                         alert(`❌ Failed this event! Out of attempts. The correct entries were: ${eventData.explanation}`);
-                    }
-                    // Force update to correct answer for transparency
-                    balanceSheet = correctBalanceSheet;
-                    renderBalanceSheet(); // Display correct answer
-                    nextBtn.disabled = false;
-
-                } else if (!isBalanced) {
-                    // Still balanced, but the individual accounts are wrong
-                     if (window.innerWidth > 768) {
-                        feedbackEl.className = 'feedback-error';
-                        feedbackEl.innerHTML = `⚠️ **Unbalanced!** Total Assets ($${playerAssets.toLocaleString('en-US')}) does not equal Total L+E ($${playerLE.toLocaleString('en-US')}). ${currentAttempts} attempts left.`;
-                    } else {
-                         alert(`⚠️ Unbalanced! Assets ($${playerAssets.toLocaleString('en-US')}) ≠ L+E ($${playerLE.toLocaleString('en-US')}). ${currentAttempts} attempts left.`);
-                    }
-                    
-                } else {
-                    // Balanced, but the wrong accounts were used (e.g., used Inventory instead of AR)
-                    if (window.innerWidth > 768) {
-                        feedbackEl.className = 'feedback-error';
-                        feedbackEl.innerHTML = `❌ **Incorrect Accounts!** Your sheet is balanced, but the wrong accounts were adjusted. ${currentAttempts} attempts left.`;
-                    } else {
-                         alert(`❌ Incorrect! The total is balanced, but the wrong accounts were adjusted. ${currentAttempts} attempts left.`);
-                    }
-                }
-            }
-        }
-
-        function nextEvent() {
-            currentEventIndex++;
-            loadEvent();
-        }
-
-        function endGame() {
-            gameInterface.style.display = 'none';
-            endScreen.style.display = 'flex';
-
-            let finalRating = "Novice Bookkeeper";
-            let finalMessage = `Great effort, ${playerName}! You completed the simulation.`;
-
-            if (currentScore >= 90) {
-                finalRating = "Master CFO 👑";
-                finalMessage = `Outstanding performance, ${playerName}! You achieved a flawless simulation.`;
-            } else if (currentScore >= 60) {
-                finalRating = "Senior Accountant 📈";
-                finalMessage = `Excellent work, ${playerName}! You demonstrated strong accounting skills.`;
-            } else if (currentScore >= 30) {
-                 finalRating = "Trainee Analyst 💡";
-                 finalMessage = `Good start, ${playerName}! Review the concepts to improve your balance sheet speed.`;
-            }
-
-            document.getElementById('end-message').textContent = finalMessage;
-            document.getElementById('final-score').innerHTML = `Final Score: <strong>${currentScore} Points</strong>`;
-            document.getElementById('final-rating').innerHTML = `Rating: <strong>${finalRating}</strong>`;
+            // 1. Gross Profit
+            const grossProfit = revenue + cogs;
+            
+            // 2. EBIT (Gross Profit + OpEx)
+            const ebit = grossProfit + opEx;
+            
+            // 3. EBT (EBIT + NonOp)
+            const ebt = ebit + nonOp;
+            
+            // 4. Income Tax Expense (EBT * TAX_RATE)
+            // Tax is calculated on EBT, and must be negative (an expense)
+            const incomeTaxExpense = -(Math.round(ebt * TAX_RATE)); 
+            
+            // 5. Net Income (EBT + Tax)
+            const netIncome = ebt + incomeTaxExpense;
+            
+            return {
+                "Gross Profit": grossProfit,
+                "EBIT (Operating Income)": ebit,
+                "EBT (Earnings Before Tax)": ebt,
+                "Income Tax Expense": incomeTaxExpense,
+                "Net Income": netIncome
+            };
         }
         
-        function confirmReset() {
-            if (confirm("Are you sure you want to reset the simulation? All progress will be lost.")) {
-                window.location.reload();
+        function startChallenge() {
+            const nameInput = document.getElementById('name-input').value.trim();
+            if (nameInput) {
+                state.playerName = nameInput;
             }
+            startGame();
         }
 
-        // Initialize real-time calculation on load
-        document.addEventListener('DOMContentLoaded', calculateRealTime);
+        function startGame() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            // Set game title
+            document.getElementById('game-title').textContent = `${state.playerName}'s Advanced Statement Builder 🏗️`;
+            
+            // Reset state and items
+            state.currentItems = shuffleArray([...LINE_ITEMS_DATA]).map((item, index) => ({ ...item, id: `item-${index}` }));
+            state.itemPlacement = {};
+            state.correctValues = calculateCorrectValues(state.currentItems);
+            state.orderCorrect = 0;
+            state.calculationCorrect = 0;
+            
+            renderStatementSlots();
+            renderUnsortedItems();
+            updateScoreDisplay(0, 0);
+            document.getElementById('feedback').textContent = "Drag and calculate the Income Statement from Revenue to Net Income.";
+            document.getElementById('feedback').style.backgroundColor = 'transparent';
+        }
+
+        function renderUnsortedItems() {
+            const unsortedContainer = document.getElementById('unsorted-items');
+            unsortedContainer.innerHTML = ''; 
+
+            state.currentItems.forEach(item => {
+                if (!Object.values(state.itemPlacement).includes(item.id)) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'line-item';
+                    itemDiv.id = item.id;
+                    itemDiv.setAttribute('draggable', true);
+                    itemDiv.setAttribute('data-category', item.type);
+                    itemDiv.setAttribute('data-sign', item.sign);
+                    itemDiv.setAttribute('data-value', item.value);
+                    itemDiv.setAttribute('data-hint', item.hint);
+
+                    const signText = item.sign === -1 ? '(Cost)' : '(Revenue)';
+                    
+                    itemDiv.innerHTML = `
+                        <span style="display: flex; align-items: center;">
+                            ${item.name} 
+                            <button class="hint-btn" onclick="showItemHint('${item.id}', event)">?</button>
+                            <span style="font-size: 0.8em; opacity: 0.7; margin-left: 5px;">${signText}</span>
+                        </span>
+                        <span class="item-value">${formatCurrency(item.value)}</span>
+                    `;
+
+                    itemDiv.addEventListener('dragstart', handleDragStart);
+                    unsortedContainer.appendChild(itemDiv);
+                }
+            });
+            
+            const placeholder = document.querySelector('.item-placeholder');
+            placeholder.style.display = unsortedContainer.children.length === 0 ? 'block' : 'none';
+        }
+
+        function renderStatementSlots() {
+            const statementContainer = document.getElementById('statement-slots');
+            statementContainer.innerHTML = '';
+
+            STATEMENT_STRUCTURE.forEach(slot => {
+                if (slot.slotType === 'draggable') {
+                    const slotDiv = document.createElement('div');
+                    slotDiv.className = 'statement-slot drop-zone';
+                    slotDiv.id = `slot-${slot.id}`;
+                    slotDiv.setAttribute('data-correct-type', slot.correctType);
+                    slotDiv.setAttribute('data-hint', slot.hint);
+                    slotDiv.setAttribute('data-title', slot.label);
+                    
+                    slotDiv.innerHTML = `
+                        <div class="slot-header">
+                            <span class="slot-title">${slot.label}</span>
+                            <button class="hint-btn" onclick="showSlotHint('slot-${slot.id}', event)">?</button>
+                        </div>
+                    `;
+                    slotDiv.addEventListener('dragover', handleDragOver);
+                    slotDiv.addEventListener('drop', handleDrop);
+                    statementContainer.appendChild(slotDiv);
+                } else if (slot.slotType === 'subtotal') {
+                    const subtotalDiv = document.createElement('div');
+                    subtotalDiv.className = 'subtotal-slot';
+                    subtotalDiv.id = `subtotal-${slot.id}`;
+                    subtotalDiv.setAttribute('data-hint', slot.hint);
+                    subtotalDiv.setAttribute('data-title', slot.label);
+                    
+                    const inputPlaceholder = slot.subtotalName === "Income Tax Expense" ? `EBT x ${TAX_RATE * 100}%` : "Enter $ Value";
+
+                    subtotalDiv.innerHTML = `
+                        <div class="slot-header">
+                            <span>${slot.label}</span>
+                            <button class="hint-btn" onclick="showSlotHint('subtotal-${slot.id}', event)">?</button>
+                        </div>
+                        <div class="subtotal-input-row">
+                            <span>Value:</span>
+                            <input type="number" id="input-${slot.subtotalName.replace(/\s|\(|\)/g, '')}" placeholder="${inputPlaceholder}">
+                        </div>
+                    `;
+                    statementContainer.appendChild(subtotalDiv);
+                }
+            });
+        }
+        
+        // --- DRAG AND DROP HANDLERS (Unchanged) ---
+
+        let draggedItemId = null;
+
+        function handleDragStart(e) {
+            draggedItemId = e.target.id;
+            e.dataTransfer.setData('text/plain', draggedItemId);
+            setTimeout(() => e.target.style.opacity = '0.5', 0);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const slot = e.currentTarget;
+            
+            if (draggedItemId) {
+                const draggedItem = document.getElementById(draggedItemId);
+                
+                const existingItem = slot.querySelector('.line-item');
+                if (existingItem) {
+                    const existingSlotId = Object.keys(state.itemPlacement).find(key => state.itemPlacement[key] === existingItem.id);
+                    if (existingSlotId) delete state.itemPlacement[existingSlotId];
+                    
+                    document.getElementById('unsorted-items').appendChild(existingItem);
+                    existingItem.style.opacity = '1';
+                    existingItem.classList.remove('correct-item', 'incorrect-item');
+                    existingItem.parentNode.removeChild(existingItem); 
+                }
+                
+                slot.appendChild(draggedItem);
+                draggedItem.style.opacity = '1';
+                
+                state.itemPlacement[slot.id] = draggedItemId;
+                renderUnsortedItems();
+            }
+        }
+        
+        // --- HINT MODAL FUNCTIONS (Unchanged) ---
+
+        function showItemHint(itemId, event) {
+            if (event) event.stopPropagation();
+
+            const itemElement = document.getElementById(itemId);
+            const itemName = itemElement.querySelector('span:first-child').firstChild.textContent.trim();
+            const hintText = itemElement.getAttribute('data-hint');
+            
+            document.getElementById('hint-modal-title').textContent = `Line Item: ${itemName}`;
+            document.getElementById('hint-modal-text').textContent = hintText;
+            document.getElementById('hint-modal-overlay').style.display = 'flex';
+        }
+
+        function showSlotHint(slotId, event) {
+            if (event) event.stopPropagation();
+            
+            const slotElement = document.getElementById(slotId);
+            const slotTitle = slotElement.getAttribute('data-title');
+            const hintText = slotElement.getAttribute('data-hint');
+            
+            document.getElementById('hint-modal-title').textContent = `Statement Section: ${slotTitle}`;
+            document.getElementById('hint-modal-text').textContent = hintText;
+            document.getElementById('hint-modal-overlay').style.display = 'flex';
+        }
+
+        function hideHintModal() {
+            document.getElementById('hint-modal-overlay').style.display = 'none';
+        }
+
+        // --- VALIDATION AND SCORING ---
+        
+        function checkAnswers() {
+            state.orderCorrect = 0;
+            state.calculationCorrect = 0;
+            
+            // 0. Reset visual feedback
+            document.querySelectorAll('.statement-slot, .subtotal-slot, .line-item').forEach(el => {
+                el.classList.remove('correct', 'incorrect', 'correct-item', 'incorrect-item');
+                el.querySelector('input')?.classList.remove('correct', 'incorrect');
+                if (el.querySelector('input')) { 
+                    const subtotalName = el.closest('.subtotal-slot')?.querySelector('.slot-header span')?.textContent;
+                    let placeholderText = "Enter $ Value";
+                    if (subtotalName && subtotalName.includes("Tax")) {
+                         placeholderText = `EBT x ${TAX_RATE * 100}%`;
+                    }
+                    el.querySelector('input').placeholder = placeholderText; 
+                }
+            });
+            
+            // 1. Check Order (Draggable Slots)
+            STATEMENT_STRUCTURE.forEach(slot => {
+                if (slot.slotType === 'draggable') {
+                    const slotElement = document.getElementById(`slot-${slot.id}`);
+                    const itemElement = slotElement.querySelector('.line-item');
+                    
+                    if (itemElement) {
+                        const itemType = itemElement.getAttribute('data-category');
+                        if (itemType === slot.correctType) {
+                            state.orderCorrect++;
+                            slotElement.classList.add('correct');
+                            itemElement.classList.add('correct-item');
+                        } else {
+                            slotElement.classList.add('incorrect');
+                            itemElement.classList.add('incorrect-item');
+                        }
+                    } else {
+                        // Slot is empty
+                        slotElement.classList.add('incorrect');
+                    }
+                }
+            });
+
+            // 2. Check Calculations (Subtotal Slots)
+            const correctValues = state.correctValues;
+            const tolerance = 1; // Allows for rounding difference in tax calculation
+            
+            STATEMENT_STRUCTURE.filter(s => s.slotType === 'subtotal').forEach(slot => {
+                const subtotalName = slot.subtotalName;
+                const cleanedName = subtotalName.replace(/\s|\(|\)/g, ''); 
+                const inputId = `input-${cleanedName}`;
+                const inputElement = document.getElementById(inputId);
+                
+                // Determine if the input should be positive or negative
+                const isExpense = subtotalName === "Income Tax Expense";
+                // Correct value: always use the absolute value of the target for user input validation
+                const correctValueTarget = Math.abs(correctValues[subtotalName]); 
+                
+                if (inputElement) {
+                    const userValue = parseFloat(inputElement.value);
+                    const subtotalSlot = inputElement.closest('.subtotal-slot');
+                    
+                    // Check if the input is a number and is close to the absolute target value
+                    if (!isNaN(userValue) && Math.abs(userValue - correctValueTarget) <= tolerance) {
+                        state.calculationCorrect++;
+                        subtotalSlot.classList.add('correct');
+                        inputElement.classList.add('correct');
+                    } else {
+                        subtotalSlot.classList.add('incorrect');
+                        inputElement.classList.add('incorrect');
+                        // Show correct answer hint
+                        inputElement.placeholder = `Correct: ${formatCurrency(correctValueTarget)}`;
+                    }
+                }
+            });
+
+            // 3. Display Feedback
+            const totalScore = state.orderCorrect + state.calculationCorrect;
+            updateScoreDisplay(state.orderCorrect, state.calculationCorrect);
+            
+            let message = `Order: ${state.orderCorrect}/${state.totalOrderSlots}. Calc: ${state.calculationCorrect}/4. Total: ${totalScore}/${state.maxScore}.`;
+            
+            if (totalScore === state.maxScore) {
+                 document.getElementById('feedback').innerHTML = `<strong>🏆 PERFECT SCORE!</strong> You mastered the advanced statement. Click the button again to see your final score card.`;
+                 document.getElementById('feedback').style.backgroundColor = '#d1fae5';
+                 setTimeout(showResults, 1000); 
+            } else {
+                document.getElementById('feedback').innerHTML = `<strong>Keep Improving!</strong> ${message} Review the red highlights. Remember the multi-step tax calculation!`;
+                document.getElementById('feedback').style.backgroundColor = '#fee2e2';
+                document.querySelector('.check-btn').textContent = "Show Final Score Card (Confirm)";
+                document.querySelector('.check-btn').onclick = showResults;
+            }
+        }
+        
+        function showResults() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('results-screen').style.display = 'block';
+
+            const totalScore = state.orderCorrect + state.calculationCorrect;
+            
+            document.getElementById('results-greeting').textContent = `Hello, ${state.playerName}! Here are your results:`;
+            document.getElementById('result-order').textContent = state.orderCorrect;
+            document.getElementById('result-calc').textContent = state.calculationCorrect;
+            document.getElementById('result-total').textContent = totalScore;
+
+            let finalMessage = "";
+            if (totalScore === state.maxScore) {
+                finalMessage = "Expert Level Achieved! Your multi-step calculations and sequencing are flawless. You are ready for real financial statements.";
+            } else if (totalScore >= 9) {
+                finalMessage = "Excellent work! You are very close to a perfect score. Double-check your EBT and Net Income calculations for precision.";
+            } else if (totalScore >= 6) {
+                finalMessage = "Good progress! You understand the overall structure, but the numerous operating expenses and the tax calculation step require careful review. Use the hints!";
+            } else {
+                finalMessage = "This is a tough challenge! Focus on the main sections (Gross Profit, EBIT) and then practice the Non-Operating and Tax steps separately.";
+            }
+            document.getElementById('final-message').textContent = finalMessage;
+        }
+
+        function updateScoreDisplay(order, calc) {
+            document.getElementById('score-display').textContent = `Current Score: ${order + calc}/${state.maxScore} (Order: ${order}/${state.totalOrderSlots} | Calc: ${calc}/4)`;
+        }
+        
+        // Initialize game on load
+        document.addEventListener('DOMContentLoaded', () => {
+             document.getElementById('game-screen').style.display = 'none';
+             document.getElementById('results-screen').style.display = 'none';
+             document.getElementById('start-screen').style.display = 'block';
+        });
     </script>
 </body>
-</html>d
+</html>
